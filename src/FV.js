@@ -55,6 +55,12 @@ class FV {
         else done()
       },req)
     }
+    req_confirm=(token,done)=>{
+      ajax('/ajax',(r)=>{
+        if (r.error)  done({type:'danger',text:'Error: '+r.error})
+        else done({type:'success',text:'Registration confirmed.'})
+      },{req:'confirm',token:token})  
+    }
     req_mail=(details,done,error)=>{
         let req={req:'mail'}
         ;['message','maths','log','to','from','qkey','r_token'].forEach(k=>{if (details[k]) req[k]=details[k]})

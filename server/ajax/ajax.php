@@ -30,18 +30,19 @@ class Ajax {
                 $this->user=$u=$i[0];
                 if ($u['name']==$json['name'] && $u['postcode']==$json['postcode']) {
                     if (!$u['confirmed']) {
-                        $e['error']='Re-sent confirmation. Please check your email and confirm.';
+                        $token=$this->encrypt(json_encode(['id'=>$u['id'],'ts'=>time()]));
                         $this->mail('register',$json,$token);
+                        $e['error']='confirm';
                     }
-                    else $e['error']='Already registered';
+                    else $e['error']='registered';
                 }
                 else {
                     $update=[];
                     if ($u['name']!=$json['name']) $update['name']=$json['name'];
                     if ($u['postcode']!=$json['postcode']) $update['postcode']=$json['postcode'];
-                    $token=$this->encrypt(json_encode(['id'=>$uid,'ts'=>time(),'update'=>$update]));
+                    $token=$this->encrypt(json_encode(['id'=>$u['id'],'ts'=>time(),'update'=>$update]));
                     $this->mail('update',$json,$token);
-                    $e['error']='Please check your email and confirm updates.';
+                    $e['error']='update';
                 }
                 // update?
             }
@@ -53,7 +54,7 @@ class Ajax {
             $this->user=['id'=>$uid,'name'=>$json['name'],'email'=>$json['email']];
             $this->mail('register',$json,$token);
         }
-        return (count($e)>0)?['e'=>422,'r'=>$e]:['r'=>'account registered','uid'=>$uid];
+        return (count($e)>0)?['e'=>422,'r'=>$e]:['r'=>'registered','uid'=>$uid];
     }
     public function req_update($json)
 	{

@@ -3,9 +3,30 @@ import {Navbar,Nav,Modal} from 'react-bootstrap'
 import logo from './agilelogo3.png'
 import Register from './Register'
 import Contact from './Contact'
+import {fv} from './Utils'
 
 class FreeVote extends Component {
-    state={nav:'home'}
+  state={nav:'home',message:null}
+  componentWillMount()
+  {
+    if (window.location.search && window.location.search.startsWith('?mail=')) {
+        // R=register
+      let type=window.location.search.substr(6,1)
+      let id=window.location.search.substr(7,window.location.search.indexOf('_'))
+      let token=window.location.search.substr(window.location.search.indexOf('_')+1)
+      if (type==='R') fv.req_confirm(token,(m)=>this.setState({message:m}))
+        //else if (type==='E') this.setState({modal:'emailUpdate',token:token,uid:id})
+        //else if (type==='P') this.setState({modal:'reset',token:token,uid:id})
+        //else if (type==='R') this.setState({modal:'reset',token:token,uid:id}) // re-use reset code
+        //else if (type==='X') this.setState({modal:'contact',token:token,uid:id})
+    }
+    if (window.location.search && window.location.search!=='') window.history.pushState("object or string","Title","/")
+  }
+  close=(m)=>{
+      // message may be e - so treat e as null
+      if (m && m.text) this.setState({nav:'home',message:m})
+      else this.setState({nav:'home',message:null})
+  }
   render() {
     let page,modal
     switch (this.state.nav)
@@ -28,7 +49,13 @@ class FreeVote extends Component {
     }
     return (<div><FVNav nav={(n)=>this.setState({nav:n})} page={this.state.nav} het={this.state.het}/>
       <div className="navbarSpacer"></div>
-      <div id="page" className='container'>{page}{modal}</div>
+      <div id="page" className='container'>
+      {this.state.message?<div name="alert" className={"alert alert-dismissible alert-"+this.state.message.type}>
+      <button type="button" className="close" onClick={this.state.message.close?this.state.message.close:()=>this.setState({message:null})} data-dismiss="alert">&times;</button>
+      <strong>{this.state.message.text}</strong></div>:null}
+      {page}
+      {modal}
+      </div>
       </div>)
   }
 }
@@ -49,11 +76,11 @@ class Home extends Component {
   <ul>
   <li>Democracy is primarily about freedom rather than control. Tax or ration the bad, invest in the good and only set laws which are clear and necessary.</li>
   <li>Everyone has an equal right to propose changes to taxation, investment, laws or anything else. We all have an equal say in what is fair and reasonable and what needs to change.</li>
-  <li>Ideas should be validated and improved, not marketed. Submitted ideas are owned by the electorate not individuals. All input and review should be anonymous and transparent.</li>
+  <li>For an idea to be implemented at least 50% of the electorate must support it. Abstaining is a lack of support. Nothing is implemented until everyone has had the opportunity to review. Anyone can change their mind at any time.</li>
+  <li>Ideas should be validated and improved, not marketed. All input and review should be anonymous and transparent. Submitted ideas are owned by the electorate not individuals.</li>
   <li>Ideas should be concrete, measurable and deliverable. The review process should refine ideas and add to evidence and measures. Evidence should be kept as balanced, clear and succinct as possible. Any lack of certainty should be expressed with statistical rigour.</li>
   <li>Validation of ideas should be based on evidence not rhetoric. Half-truths and logical or factual errors should be highlighted and corrected. Specialists should aim to educate not indoctrinate. Ideas gaining the most local/national support will be automatically distributed for wider local/national review. </li> 
-  <li>For an idea to be implemented at least 50% of the electorate must support it. Abstaining is a lack of support.  Nothing is implemented until everyone has had the opportunity to review. Anyone can change their mind at any time.</li>
-  <li>The electorate are responsible for the prioritisation process, including the balance between taxation, investment and laws. The highest priority ideas should be delivered first.</li>
+  <li>The electorate are responsible for the prioritisation process. Ideas with most support should be implemented first unless the electorate decide otherwise.</li>
   <li>Delivery should be <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Test-driven_development">test driven</a>. The electorate must be kept regularly informed on progress against agreed measures. The electorate may re-direct or re-prioritise at any time.</li>
   </ul>
   <br/><br/>

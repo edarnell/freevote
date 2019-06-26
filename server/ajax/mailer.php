@@ -12,18 +12,20 @@ class Mailer {
       $url.="?mail=M{$logid}_{$token}";
       $button=['title'=>'Reply', 'url'=>$url, 'text'=>"to view online and reply"];
       break;
-      case 'newEmail':
-      $to=$user;
-      $message="Please confirm your new email address.";
-      $title="Confirm Email";
-      $name="Dear ".$user['name'].',';
-      $url.="?mail=E{$user['id']}_{$token}";
-      $button=['title'=>$title, 'url'=>$url, 'text'=>"confirm your new email"];
-      break;
       case 'register':
       $to=$user;
       $message="Thank you for registering. Please confirm using the button below.";
       $title="Confirm Registration";
+      $name="Dear ".$user['name'].',';
+      $url.="?mail=R{$user['id']}_{$token}";
+      $button=['title'=>$title, 'url'=>$url, 'text'=>"link will expire in 48 hours"];
+      break;
+      case 'update':
+      $to=$user;
+      $message="Please confirm your updated details.\n";
+      if ($user['name']!=$json['name']) $message.="\nName: {$json['name']}";
+      if ($user['postcode']!=$json['postcode']) $message.="\nPost Code: {$json['postcode']}";
+      $title="Confirm Changes";
       $name="Dear ".$user['name'].',';
       $url.="?mail=R{$user['id']}_{$token}";
       $button=['title'=>$title, 'url'=>$url, 'text'=>"link will expire in 48 hours"];
@@ -121,9 +123,10 @@ $button.title</a></td>
 </tr>
 <tr>
 <td height="60" valign="middle" align="center" bgcolor="#ffffff" style="background-color:#ffffff;border-left:1px solid #e6dee4;border-right:1px solid #e6dee4;border-bottom:1px solid #e6dee4;padding:5px 0;">
-<span style="font-size:14px;color:#999;line-height:20px;font-family:Arial,sans-serif;">
+<div style="font-size:14px;color:#999;line-height:20px;font-family:Arial,sans-serif;">
 Copyright &copy; 2019 FreeVote.uk All rights reserved.
-</span>
+</div>
+<div style="font-size:14px;"><a href="us">unsubscribe</a></div>
 </td>
 </tr>
 </table>
