@@ -56,43 +56,18 @@ class Ajax {
         }
         return (count($e)>0)?['e'=>422,'r'=>$e]:['r'=>'registered','uid'=>$uid];
     }
-    public function req_update($json)
+    public function req_confirm($json)
 	{
-        if ($user=$this->user()) {
-            $u=[];
-            $e=[];
-            if (!$json['name']) $e['name']='required';
-            else if (strlen($json['name'])>255) $e['name']='too long';
-            else $u['name']=$json['name'];
-
-            if (!filter_var($json['email'],FILTER_VALIDATE_EMAIL)) $e['email']='invalid';
-            else if ($json['email']==$user['email']) $u['email']=$user['email'];
-            else{
-                $i=$this->db('select id from users where email=?',['s',&$json['email']]);
-                if (count($i)>0) $e['email']='already in use';
-                else $u['email']=$json['email'];
-            }
-		    if (isset($json['password'])) $u['password']=password_hash($json['password'],PASSWORD_DEFAULT);
-            else $u['password']=$user['password'];
-            
-            if (count($e)==0) {
-                if ($u['name']!=$user['name'] || $u['password']!=$user['password']) {
-                    $i=$this->db("update users set name=?,password=? where id=?",['ssi',&$u['name'],&$u['password'],&$user['id']]);
-                    if ($i!==1) $ret=['e'=>500,'r'=>'database error'];
-                    $ret=['name'=>$u['name'],'email'=>$u['email']];
-                }
-                else $ret=['name'=>$u['name'],'email'=>$u['email']];
-                if ($u['email']!==$user['email']) {
-                    $token=$this->encrypt(json_encode(['id'=>$user['id'],'email'=>$user['email'],'new'=>$u['email'],'ts'=>time()]));
-                    $this->u['email']=$u['email']; // send email to new address
-                    $this->u['name']=$u['name'];
-                    $this->mail('newEmail',$json,$token);
-                }
-            }
-            else $ret=['e'=>422,'r'=>$e];
+        $e=null;
+        $token=json_decode($this->decrypt($json['token']),true);
+        $u=$this->db("select name,email,id from users where id=?",['s',&$token['id']]);
+        if ($u && $token['ts']>time()-48*3600) {
+            $this->user=$u[0];
+            $this->db("update users set confirmed='true' where id=?",['s',&$token['id']]);
+            $this->mail('confirmed',null,$json['token']);
         }
-        else $ret=['e'=>401,'r'=>'unauthorised'];
-        return $ret;
+        else $e='timeout';
+        return $e?['e'=>422,'r'=>['error'=>$e]]:['r'=>'confirmed','uid'=>$uid];
     }
     public function req_unsubscribe($json)
 	{

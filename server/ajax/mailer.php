@@ -20,6 +20,17 @@ class Mailer {
       $url.="?mail=R{$user['id']}_{$token}";
       $button=['title'=>$title, 'url'=>$url, 'text'=>"link will expire in 48 hours"];
       break;
+      case 'confirmed':
+      $to=$user;
+      $message="Welcome to the start of true democracy. Collective electorate intelligence instead of politicians."
+      ."\n\nWhat happens next?"
+      ."\n\nPlease let others who may be interested know. Freevote.uk will not stand for election until there is a clear democratic demand."
+      ." An initial target is around 1 million uk voters registering (double the size of any uk political party).";
+      $title="Welcome";
+      $name="Dear ".$user['name'].',';
+      $url.="?mail=C{$user['id']}_{$token}";
+      $button=['title'=>'Contact Us', 'url'=>$url, 'text'=>""];
+      break;
       case 'update':
       $to=$user;
       $message="Please confirm your updated details.\n";

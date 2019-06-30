@@ -74,7 +74,7 @@ class Home extends Component {
   <p>Do not expect politicians to deliver this for us.  We must do it for ourselves, democratically. If you would like to help please <a href="#join" onClick={(e)=>{e.preventDefault();this.props.nav('join')}}>sign up</a>.</p>
   <h3>Guiding principles for true democracy</h3>
   <ul>
-  <li>Democracy is primarily about freedom rather than control. Tax or ration the bad, invest in the good and only set laws which are clear and necessary.</li>
+  <li>Democracy is primarily about freedom rather than control. Invest in the good, tax, ban or ration the bad, and only set laws which are clear and necessary.</li>
   <li>Everyone has an equal right to propose changes to taxation, investment, laws or anything else. We all have an equal say in what is fair and reasonable and what needs to change.</li>
   <li>For an idea to be implemented at least 50% of the electorate must support it. Abstaining is a lack of support. Nothing is implemented until everyone has had the opportunity to review. Anyone can change their mind at any time.</li>
   <li>Ideas should be validated and improved, not marketed. All input and review should be anonymous and transparent. Submitted ideas are owned by the electorate not individuals.</li>
