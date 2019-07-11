@@ -22,10 +22,10 @@ class Mailer {
       break;
       case 'confirmed':
       $to=$user;
-      $message="Welcome to the start of true democracy. Collective electorate intelligence instead of politicians."
+      $message="Welcome to the start of true democracy."
       ."\n\nWhat happens next?"
-      ."\n\nPlease let others who may be interested know. Freevote.uk will not stand for election until there is a clear democratic demand."
-      ." An initial target is around 1 million uk voters registering (double the size of any uk political party).";
+      ."\n\nPlease let others who may be interested know. An initial target is 1 million registrations."
+      ." Freevote.uk will not stand for election until there is a clear demand for true democracy. We will keep you informed on progress.";
       $title="Welcome";
       $name="Dear ".$user['name'].',';
       $url.="?mail=C{$user['id']}_{$token}";
@@ -51,6 +51,7 @@ class Mailer {
       $button=['title'=>"Contact Us", 'url'=>$url, 'text'=>"contact FreeVote.uk"];
       break;
     }
+    
     $greet=$to?"Dear {$to['name']},":'';
     $html=str_replace(['$greet','$title','$message','$button.title','$button.url','$button.text'],[$greet,$title,nl2br(htmlentities($message)),$button['title'],$button['url'],$button['text']],$this->template);
     $text='*** '.$title." ***".PHP_EOL.$greet.PHP_EOL.$message.PHP_EOL.$button['title'].' ('.$button['text'].'): '.$button['url'].PHP_EOL;

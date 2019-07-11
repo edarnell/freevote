@@ -1,43 +1,32 @@
 import {debug,copy} from './Utils'
 import 'whatwg-fetch'
 
-function ajax(url,action,data,token) // token used when state not yet set
+function ajax(req,done) // token used when state not yet set
 {
-  if (debug('ajax')) console.log('ajax',url,copy(data))
+  if (debug('ajax')) console.log('ajax',copy(req))
   let error=false
-  fetch(url,params(data,token))
+  fetch('/ajax',params(req))
   .then(res=>{
     if (!res.ok) {
-      if (debug('ajax')) console.error(url,data,res.statusText)
+      if (debug('ajax')) console.error(req,res.statusText)
       error=res.statusText
     }
-    return url.endsWith('.gz')?res.text():res.json()
+    return res.json()
   })
   .then(json=>{
     //error?console.log(url,error,json):console.log(url,json)
-    if (action) action({error:error,data:json})
+    if (debug('ajax')) console.debug('ajax',json,error)
+    if (done) done({error:error,data:json})
   })
   .catch(e=>{
-    if (debug('ajax')) console.error(url,error,data)
-    if (action) action({error:e,data:{error:error?error:e.message}})
+    if (debug('ajax')) console.error(req,error)
+    if (done) done({error:e,data:{error:error?error:e.message}})
   })
 }
 
-function params(data,token)
+function params(req)
 {
-  let ret
-  if (!data) ret = {
-    headers: {
-      'Accept': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
-      'FV-Origin':window.location.origin?window.location.origin:null,
-    },
-    method: 'get',
-    cache: 'no-cache'
-    //cache: 'default'
-  }
-  else {
-    ret = {
+  let ret = {
       headers: {
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
@@ -46,10 +35,9 @@ function params(data,token)
       },
       method: 'post',
       cache: 'no-cache',
-      body: JSON.stringify(data)
-    }
+      body: JSON.stringify(req)
   }
-  //console.log('params',data,ret.body)
+  if (debug('params')) console.log('params',req,ret.body)
   return ret
 }
-export {ajax,params}
+export {ajax}

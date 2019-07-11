@@ -1,13 +1,16 @@
 import React, { Component } from 'react'
 import {Modal,Form,Col,Row,Button} from 'react-bootstrap'
-import {fv} from './Utils'
+import {ajax} from './ajax'
 class Register extends Component {
   state={name:'',email:'',postcode:'',message:'',error:{},why:false}
   register=(e)=>{
     e.preventDefault()
-    fv.req_register(this.state,()=>console.log('registered'),(e)=>{
-      console.log('register error',e)
-      this.setState({error:e})
+    ajax({req:'register',name:this.state.name,email:this.state.email,postcode:this.state.postcode},
+    (r)=>{
+      if (r.error) this.props.close({type:'danger',text:'Error. Our technical team have been notified. Please try later.'})
+      else {
+        this.props.close({type:'success',text: JSON.stringify(r.data)}) //'Registed. Please check your email to confirm.'})
+      }
     })
     return false
   }

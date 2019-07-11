@@ -19,7 +19,7 @@ class Ajax {
     }
     public function req_register($json)
 	{
-        $e=[];
+        $e=[]; $r=false;
         if (!$json['name']) $e['name']='required';
         else if (strlen($json['name'])>255) $e['name']='too long';
 
@@ -32,9 +32,9 @@ class Ajax {
                     if (!$u['confirmed']) {
                         $token=$this->encrypt(json_encode(['id'=>$u['id'],'ts'=>time()]));
                         $this->mail('register',$json,$token);
-                        $e['error']='confirm';
+                        $r='reconfirm';
                     }
-                    else $e['error']='registered';
+                    else $r='confirmed';
                 }
                 else {
                     $update=[];
@@ -42,19 +42,20 @@ class Ajax {
                     if ($u['postcode']!=$json['postcode']) $update['postcode']=$json['postcode'];
                     $token=$this->encrypt(json_encode(['id'=>$u['id'],'ts'=>time(),'update'=>$update]));
                     $this->mail('update',$json,$token);
-                    $e['error']='update';
+                    $r='update';
                 }
                 // update?
             }
         }
-        if (count($e)==0) {
+        if (count($e)==0 && !$r) {
             $uid=$this->db("insert into users (name,email,postcode) values(?,?,?)",['sss',&$json['name'],&$json['email'],&$json['postcode']]);
             $token=$this->encrypt(json_encode(['id'=>$uid,'ts'=>time()]));
             //$this->db("update users set token=? where id=?",['si',&$token,&$uid]);
             $this->user=['id'=>$uid,'name'=>$json['name'],'email'=>$json['email']];
             $this->mail('register',$json,$token);
+            $r='confirm';
         }
-        return (count($e)>0)?['e'=>422,'r'=>$e]:['r'=>'registered','uid'=>$uid];
+        return (count($e)>0)?['e'=>422,'r'=>$e]:['r'=>$r,'uid'=>$this->user['id']];
     }
     public function req_confirm($json)
 	{
@@ -67,7 +68,7 @@ class Ajax {
             $this->mail('confirmed',null,$json['token']);
         }
         else $e='timeout';
-        return $e?['e'=>422,'r'=>['error'=>$e]]:['r'=>'confirmed','uid'=>$uid];
+        return $e?['r'=>['error'=>$e]]:['r'=>'confirmed','uid'=>$uid];
     }
     public function req_unsubscribe($json)
 	{

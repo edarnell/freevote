@@ -3,18 +3,25 @@ import {Navbar,Nav,Modal} from 'react-bootstrap'
 import logo from './agilelogo3.png'
 import Register from './Register'
 import Contact from './Contact'
-import {fv} from './Utils'
+import {ajax} from './ajax'
+import { set_debug } from './Utils';
 
 class FreeVote extends Component {
   state={nav:'home',message:null}
   componentWillMount()
   {
+    set_debug('ajax')
     if (window.location.search && window.location.search.startsWith('?mail=')) {
         // R=register
       let type=window.location.search.substr(6,1)
       let id=window.location.search.substr(7,window.location.search.indexOf('_'))
       let token=window.location.search.substr(window.location.search.indexOf('_')+1)
-      if (type==='R') fv.req_confirm(token,(m)=>this.setState({message:m}))
+      if (type==='R') ajax({req:'confirm',token:token},
+        (r)=>{
+          if (r.error)  this.setState({message:{type:'danger',text:'Error: '+r.error}})
+          else this.setState({message:{type:'success',text:'Registration confirmed.'}})
+        }
+      )
         //else if (type==='E') this.setState({modal:'emailUpdate',token:token,uid:id})
         //else if (type==='P') this.setState({modal:'reset',token:token,uid:id})
         //else if (type==='R') this.setState({modal:'reset',token:token,uid:id}) // re-use reset code
@@ -37,11 +44,11 @@ class FreeVote extends Component {
         break
       case 'join':
         page=<Home nav={(n)=>this.setState({nav:n})}/>
-        modal=<Register close={()=>this.setState({nav:'home'})}/>
+        modal=<Register close={this.close}/>
         break
       case 'contact':
         page=<Home nav={(n)=>this.setState({nav:n})}/>
-        modal=<Contact close={()=>this.setState({nav:'home'})}/>
+        modal=<Contact close={()=>this.close}/>
         break
       default:
         page=<Home nav={(n)=>this.setState({nav:n})}/>
@@ -65,9 +72,9 @@ class Home extends Component {
     return <div> 
   <div><img src={logo} alt="AgileLogo"/><button onClick={(e)=>{e.preventDefault();this.props.nav('join')}} className='btn btn-primary btn-lg'>Sign Up</button></div>
   <h1>Direct Democracy</h1>
-  <p>Democracy has no political beliefs beyond democracy itself. The electorate not politicians form and decide on the priorities. There are no manifestos or political ideologies.  The electorate are in charge, if something is not working it can be changed. The electorate decide what, how and when.</p>
+  <p><a  target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Direct_democracy">Democracy</a> has no political beliefs beyond democracy itself. The electorate not politicians form and decide on the priorities. There are no manifestos or political ideologies.  The electorate are in charge, if something is not working it can be changed. The electorate decide what, how and when.</p>
   <p>Our political systems are driving environmental destruction, inequality and extremism. We can do far better, harnessing the <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Wisdom_of_the_crowd">wisdom of the crowd</a> to deliver 21st century solutions to 21st century problems. <a target="_blank"  rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Universal_suffrage">Universal suffrage</a> was the start not the end of the fight for true <a  target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Direct_democracy">democracy</a>.
-  We no longer need <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Representative_democracy">representatives</a>. Democracy is about everyone being able to decide for themselves.</p>
+  We no longer need <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Representative_democracy">representatives</a>. Democracy is about everyone being able to learn and decide for themselves.</p>
   <p>Change is urgently needed if we are to build a fair society whilst preserving our precious world for future generations.</p>
   <ul><li>The aim is to democratically propose, validate, improve and deliver ideas.</li></ul>	
   <p>True democracy has not been technically possible until recently, but it is now. We no longer need to be ruled by political parties and powerful individuals. We can democratically agree what needs to change. We live in a <a rel="noopener noreferrer" target="_blank" href="https://en.wikipedia.org/wiki/Representative_democracy">representative democracy</a> but transitioning to <a  target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Direct_democracy">direct democracy</a> is only a matter of voting for it.</p>
