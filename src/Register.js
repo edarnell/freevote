@@ -21,7 +21,7 @@ class Register extends Component {
   }
   render() {
     return (<div>
-      <Modal name='join' show={true} onHide={()=>this.props.close()}>
+      <Modal name='register' show={true} onHide={()=>this.props.close()}>
       <Modal.Header closeButton><Modal.Title>Register</Modal.Title></Modal.Header>
       <Modal.Body>
       {this.state.error.error?<div className="alert alert-danger"><strong>Error: {this.state.error.error}</strong></div>:null}

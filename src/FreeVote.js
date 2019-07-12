@@ -108,9 +108,9 @@ class FVNav extends Component {
         <Nav.Link href="#home" onClick={(e)=>{e.preventDefault();this.props.nav('home')}}>Home</Nav.Link>
       </Nav>
       <Nav className="justify-content-end">
-        <Nav.Link href="#join" onClick={(e)=>{e.preventDefault();this.props.nav('join')}}>Join</Nav.Link>
-        <Nav.Link href="#about" onClick={(e)=>{e.preventDefault();this.props.nav('about')}}>About</Nav.Link>
-        <Nav.Link href="#contact" onClick={(e)=>{e.preventDefault();this.props.nav('contact')}}>Contact</Nav.Link>
+        <Nav.Link name="join" href="#join" onClick={(e)=>{e.preventDefault();this.props.nav('join')}}>Join</Nav.Link>
+        <Nav.Link name="about" href="#about" onClick={(e)=>{e.preventDefault();this.props.nav('about')}}>About</Nav.Link>
+        <Nav.Link name="contact" href="#contact" onClick={(e)=>{e.preventDefault();this.props.nav('contact')}}>Contact</Nav.Link>
       </Nav>
       </Navbar.Collapse>
       </div>
