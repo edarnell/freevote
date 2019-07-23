@@ -45,12 +45,8 @@ class Register extends Component {
         <Col sm={6}><Form.Control type="text" name="postCode" value={this.state.postcode} placeholder="optional" onChange={(e)=>this.update('postcode',e.target.value)} pattern="[A-Za-z]{1,2}[0-9Rr][0-9A-Za-z]? [0-9][ABD-HJLNP-UW-Zabd-hjlnp-uw-z]{2}"/></Col>
         <Col sm={3}><a href='#whyPC' onClick={(e)=>{e.preventDefault();this.setState({why:true})}}>why?</a></Col>
       </Form.Group>
-      <Form.Group as={Row} controlId="formMessage">
-        <Form.Label column sm={3}>Message</Form.Label>
-        <Col sm={9}><Form.Control as="textarea" required value={this.state.message} placeholder="optional" rows="3" onChange={(e)=>this.update('message',e.target.value)}/></Col>
-      </Form.Group>
-      <Form.Group>
-        <Col sm={{span:4, offset:2}}><Button name="register" varient="primary" type="submit"><i className="fa fa-btn fa-user"></i> Register</Button></Col>
+      <Form.Group as={Row}>
+        <Col sm={{span:4, offset:3}}><Button name="register" varient="primary" type="submit"><i className="fa fa-btn fa-user"></i> Register</Button></Col>
       </Form.Group>
       </Form>
       <p>Your help in developing true democracy is appreciated. FreeVote.uk has no advertising or commercial activities. Your details will be kept private and not shared with any third parties.</p>

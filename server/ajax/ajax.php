@@ -68,7 +68,22 @@ class Ajax {
             $this->mail('confirmed',null,$json['token']);
         }
         else $e='timeout';
-        return $e?['r'=>['error'=>$e]]:['r'=>'confirmed','uid'=>$uid];
+        return $e?['r'=>['error'=>$e]]:['r'=>'confirmed','uid'=>$this->user['id']];
+    }
+    public function req_contact($json)
+	{
+        $e=null;
+        if (isset($json['token'])) {
+            $token=json_decode($this->decrypt($json['token']),true);
+            $u=$this->db("select name,email,id,confirmed from users where id=?",['s',&$token['id']]);
+            if ($u) {
+                $this->user=$u[0];
+                $this->mail('contact',$json,$json['token']);
+            }
+            $e='unknown user'
+        }
+        else $e='notoken';
+        return $e?['r'=>['error'=>$e]]:['r'=>'sent','uid'=>$this->user['id']];
     }
     public function req_unsubscribe($json)
 	{

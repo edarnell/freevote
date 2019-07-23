@@ -3,13 +3,24 @@ import {Modal,Form,Col,Row,Button} from 'react-bootstrap'
 import {ajax} from './ajax'
 
 class Contact extends Component {
-    state={name:'',email:'',message:'',error:{}}
+    state={name:'',email:'',message:'',error:{},tick:[]}
+    tickbox=(c)=>{
+      let t=this.state.tick
+      t[c]=!t[c]
+      this.setState({tick:t})
+    }
     contact=(e)=>{
       e.preventDefault()
-      if (this.props.token) ajax({req:'contact',token:this.props.token},r=>{
+      if (this.props.token) ajax({req:'contact',message:this.state.message,token:this.props.token},r=>{
         console.log('contact',r)
         if (r.error) this.props.close({type:'danger',text:'Error: '+r.error})
         else this.props.close({type:'success',text:'Message sent. We aim to respond within 24 hours.'})
+      })
+      else if (this.state.tick[1]||this.state.tick[3]||!this.state.tick[2]) this.props.close({type:'danger',text:'Not sent: anti-spam check failed'})
+      else ajax({req:'contact',message:this.state.email,message:this.state.name,message:this.state.message},r=>{
+        console.log('contact',r)
+        if (r.error) this.props.close({type:'danger',text:'Error: '+r.error})
+        else this.props.close({type:'success',text:'Please check your email to confirm sending.'})
       })
     }
     update=(field,value)=>{
@@ -37,8 +48,12 @@ class Contact extends Component {
           <Form.Label column sm={3}>Message</Form.Label>
           <Col sm={9}><Form.Control required as="textarea" value={this.state.message} placeholder="message" rows="3" onChange={(e)=>this.update('message',e.target.value)}/></Col>
         </Form.Group>
-        <Form.Group>
-          <Col offset={2} sm={4}><Button name="send" varient="primary" type="submit"><i className="fa fa-envelope-o"></i> Send</Button></Col>
+        {this.props.token?null:<div>Anti-spam please tick the middle box.</div>}
+        <Form.Group as={Row}>
+          <Col sm={3}>
+          {this.props.token?null:['1','2','3'].map(c=><Form.Check key={c} type='checkbox' inline onClick={()=>this.tickbox(c)}/>)}
+          </Col>
+          <Col offset={3} sm={4}><Button name="send" varient="primary" type="submit"><i className="fa fa-envelope-o"></i> Send</Button></Col>
         </Form.Group>
         </Form>
         </Modal.Body></Modal>)

@@ -9,7 +9,7 @@ class Mailer {
       $from=isset($json['from'])?$json['from']:$user;
       $message=$json['message'];
       $title="Message from ".$from['name'];
-      $url.="?mail=M{$logid}_{$token}";
+      $url.="?mail=M{$token}";
       $button=['title'=>'Reply', 'url'=>$url, 'text'=>"to view online and reply"];
       break;
       case 'register':
@@ -17,7 +17,7 @@ class Mailer {
       $message="Thank you for registering. Please confirm using the button below.";
       $title="Confirm Registration";
       $name="Dear ".$user['name'].',';
-      $url.="?mail=R{$user['id']}_{$token}";
+      $url.="?mail=R{$token}";
       $button=['title'=>$title, 'url'=>$url, 'text'=>"link will expire in 48 hours"];
       break;
       case 'confirmed':
@@ -28,7 +28,7 @@ class Mailer {
       ." Freevote.uk will not stand for election until there is a clear demand for true democracy. We will keep you informed on progress.";
       $title="Welcome";
       $name="Dear ".$user['name'].',';
-      $url.="?mail=C{$user['id']}_{$token}";
+      $url.="?mail=C{$token}";
       $button=['title'=>'Contact Us', 'url'=>$url, 'text'=>""];
       break;
       case 'update':
@@ -38,7 +38,7 @@ class Mailer {
       if ($user['postcode']!=$json['postcode']) $message.="\nPost Code: {$json['postcode']}";
       $title="Confirm Changes";
       $name="Dear ".$user['name'].',';
-      $url.="?mail=R{$user['id']}_{$token}";
+      $url.="?mail=R{$token}";
       $button=['title'=>$title, 'url'=>$url, 'text'=>"link will expire in 48 hours"];
       break;
       case 'unsubscribe':
@@ -47,7 +47,7 @@ class Mailer {
       .PHP_EOL."If you did not request this, or made the request in error please contact us or reply to this email.";
       $title="Account Deleted";
       $name="Dear ".$user['name'].',';
-      $url.="?mail=X{$user['id']}_{$token}";
+      $url.="?mail=X{$token}";
       $button=['title'=>"Contact Us", 'url'=>$url, 'text'=>"contact FreeVote.uk"];
       break;
     }
