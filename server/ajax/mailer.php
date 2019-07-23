@@ -1,7 +1,7 @@
 <?php
 require_once '../vendor/autoload.php';
 class Mailer {
-  function send($type,$json,$token,$user,$logid) {
+  function send($type,$json,$token,$user) {
     $url=(isset($_SERVER['HTTP_FV_ORIGIN'])?$_SERVER['HTTP_FV_ORIGIN']:'https://freevote.uk');
     switch ($type) {
       case 'contact':
@@ -24,7 +24,7 @@ class Mailer {
       $to=$user;
       $message="Welcome to the start of true democracy."
       ."\n\nWhat happens next?"
-      ."\n\nPlease let others who may be interested know. An initial target is 1 million registrations."
+      ."\n\nPlease let others know who may be interested. An initial target is 1 million registrations."
       ." Freevote.uk will not stand for election until there is a clear demand for true democracy. We will keep you informed on progress.";
       $title="Welcome";
       $name="Dear ".$user['name'].',';

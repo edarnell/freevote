@@ -144,14 +144,14 @@ class Ajax {
         }
         error_log(($req?'':number_format(round(microtime(true)-$this->start,4),4).',').$json.','.$this->start);
     }
-    private function mail($type,$json=null,$token=null,$logid=null)
+    private function mail($type,$json=null,$token=null)
     {
         if (!$this->mailer) {
             require_once 'mailer.php';
             $this->mailer=new Mailer();
         }
-        $user=$this->user?['id'=>$this->user['id'],'name'=>$this->user['name'],'email'=>$this->user['email']]:['id'=>0,'name'=>$json['name'],'email'=>$json['email']];
-        $this->mailer->send($type,$json,$token,$user,$logid);
+        $user=$this->user?$this->user:['id'=>0,'name'=>$json['name'],'email'=>$json['email']];
+        $this->mailer->send($type,$json,$token,$user);
     }
     private function db($query,$vals=[],$close=false) {
         $ret=null;

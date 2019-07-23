@@ -16,8 +16,9 @@ class FreeVote extends Component {
       let type=window.location.search.substr(6,1)
       let id=window.location.search.substr(7,window.location.search.indexOf('_'))
       let token=window.location.search.substr(window.location.search.indexOf('_')+1)
-      if (type==='R') ajax({req:'confirm',token:token},
-        (r)=>{
+      if (type==='C') this.setState({nav:'contact',token:token})
+      else if (type==='R') ajax({req:'confirm',token:token},
+        r=>{
           if (r.error)  this.setState({message:{type:'danger',text:'Error: '+r.error}})
           else this.setState({message:{type:'success',text:'Registration confirmed.'}})
         }
@@ -31,6 +32,7 @@ class FreeVote extends Component {
   }
   close=(m)=>{
       // message may be e - so treat e as null
+      console.log('close',m)
       if (m && m.text) this.setState({nav:'home',message:m})
       else this.setState({nav:'home',message:null})
   }
@@ -48,7 +50,7 @@ class FreeVote extends Component {
         break
       case 'contact':
         page=<Home nav={(n)=>this.setState({nav:n})}/>
-        modal=<Contact close={()=>this.close}/>
+        modal=<Contact close={this.close} token={this.state.token}/>
         break
       default:
         page=<Home nav={(n)=>this.setState({nav:n})}/>

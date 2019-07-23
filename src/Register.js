@@ -9,7 +9,13 @@ class Register extends Component {
     (r)=>{
       if (r.error) this.props.close({type:'danger',text:'Error. Our technical team have been notified. Please try later.'})
       else {
-        this.props.close({type:'success',text: JSON.stringify(r.data)}) //'Registed. Please check your email to confirm.'})
+        let message='error'
+        switch (r.data.r) {
+          case 'update':
+            message='Details updated. Please check your email to confirm changes.'
+            break
+        }
+        this.props.close({type:'success',text: message}) //'Registed. Please check your email to confirm.'})
       }
     })
     return false
@@ -41,7 +47,7 @@ class Register extends Component {
       </Form.Group>
       <Form.Group as={Row} controlId="formMessage">
         <Form.Label column sm={3}>Message</Form.Label>
-        <Col sm={9}><Form.Control as="textarea" value={this.state.message} placeholder="optional" rows="3" onChange={(e)=>this.update('message',e.target.value)}/></Col>
+        <Col sm={9}><Form.Control as="textarea" required value={this.state.message} placeholder="optional" rows="3" onChange={(e)=>this.update('message',e.target.value)}/></Col>
       </Form.Group>
       <Form.Group>
         <Col sm={{span:4, offset:2}}><Button name="register" varient="primary" type="submit"><i className="fa fa-btn fa-user"></i> Register</Button></Col>
