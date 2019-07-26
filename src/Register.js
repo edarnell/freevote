@@ -10,10 +10,19 @@ class Register extends Component {
       if (r.error) this.props.close({type:'danger',text:'Error. Our technical team have been notified. Please try later.'})
       else {
         let message='error'
-        switch (r.data.r) {
+        switch (r) {
           case 'update':
-            message='Details updated. Please check your email to confirm changes.'
+            message='Please check your email to confirm changes.'
             break
+          case 'confirm':
+          case 'reconfirm':
+            message='Registered. Please check your email to confirm.'
+            break
+          case 'confirmed':
+            message='Registered.'
+            break
+          default:
+            message="error: unknown case."
         }
         this.props.close({type:'success',text: message}) //'Registed. Please check your email to confirm.'})
       }
@@ -46,7 +55,7 @@ class Register extends Component {
         <Col sm={3}><a href='#whyPC' onClick={(e)=>{e.preventDefault();this.setState({why:true})}}>why?</a></Col>
       </Form.Group>
       <Form.Group as={Row}>
-        <Col sm={{span:4, offset:3}}><Button name="register" varient="primary" type="submit"><i className="fa fa-btn fa-user"></i> Register</Button></Col>
+        <Col sm={{span:4, offset:3}}><Button name="register" variant="primary" type="submit"><i className="fa fa-btn fa-user"></i> Register</Button></Col>
       </Form.Group>
       </Form>
       <p>Your help in developing true democracy is appreciated. FreeVote.uk has no advertising or commercial activities. Your details will be kept private and not shared with any third parties.</p>

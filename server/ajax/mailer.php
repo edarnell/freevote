@@ -2,14 +2,30 @@
 require_once '../vendor/autoload.php';
 class Mailer {
   function send($type,$json,$token,$user) {
-    $url=(isset($_SERVER['HTTP_FV_ORIGIN'])?$_SERVER['HTTP_FV_ORIGIN']:'https://freevote.uk');
+    $fv=$url=(isset($_SERVER['HTTP_FV_ORIGIN'])?$_SERVER['HTTP_FV_ORIGIN']:'https://freevote.uk');
+    $footer='<a href="'."{$url}?mail=C{$token}".'">contact us</a>'.($user['id']?'&nbsp;&nbsp;&nbsp;<a href="'."{$url}?mail=X{$token}".'">unsubscribe</a>':'');
     switch ($type) {
+      case 'send':
+      $to=$user;
+      $message="Thank you for your message. Please use the send button below to confirm sending.";
+      $title="Confirm Send";
+      $url.="?mail=V{$token}";
+      $button=['title'=>'Send', 'url'=>$url, 'text'=>"to send your message"];
+      break;
       case 'contact':
-      $to=isset($json['to'])?$json['to']:null;
-      $from=isset($json['from'])?$json['from']:$user;
+      $to=null;
+      $from=$user;
       $message=$json['message'];
       $title="Message from ".$from['name'];
       $url.="?mail=M{$token}";
+      $footer='';
+      $button=['title'=>'Reply', 'url'=>$url, 'text'=>"to view online and reply"];
+      break;
+      case 'reply':
+      $to=$user;
+      $message=$json['message'];
+      $title="Reply from Ed Darnell";
+      $url.="?mail=V{$token}";
       $button=['title'=>'Reply', 'url'=>$url, 'text'=>"to view online and reply"];
       break;
       case 'register':
@@ -38,22 +54,31 @@ class Mailer {
       if ($user['postcode']!=$json['postcode']) $message.="\nPost Code: {$json['postcode']}";
       $title="Confirm Changes";
       $name="Dear ".$user['name'].',';
-      $url.="?mail=R{$token}";
+      $url.="?mail=U{$token}";
       $button=['title'=>$title, 'url'=>$url, 'text'=>"link will expire in 48 hours"];
+      break;
+      case 'updated':
+      $to=$user;
+      $message="Name: {$user['name']}";
+      $message.="\nEmail: {$user['email']}";
+      $message.="\nPost Code: {$user['postcode']}";
+      $title="Details Updated";
+      $name="Dear ".$user['name'].',';
+      $url.="?mail=C{$token}";
+      $button=['title'=>'Contact Us', 'url'=>$url, 'text'=>""];
       break;
       case 'unsubscribe':
       $to=$user;
       $message="Your account has now been unsubscribed and your details removed from our database."
-      .PHP_EOL."If you did not request this, or made the request in error please contact us or reply to this email.";
+      .PHP_EOL."If you made the request in error or change your mind please re-register.";
       $title="Account Deleted";
       $name="Dear ".$user['name'].',';
-      $url.="?mail=X{$token}";
+      $url.="?mail=C";
       $button=['title'=>"Contact Us", 'url'=>$url, 'text'=>"contact FreeVote.uk"];
       break;
     }
-    
     $greet=$to?"Dear {$to['name']},":'';
-    $html=str_replace(['$greet','$title','$message','$button.title','$button.url','$button.text'],[$greet,$title,nl2br(htmlentities($message)),$button['title'],$button['url'],$button['text']],$this->template);
+    $html=str_replace(['$fv','$greet','$title','$message','$button.title','$button.url','$button.text','$footer'],[$fv,$greet,$title,nl2br(htmlentities($message)),$button['title'],$button['url'],$button['text'],$footer],$this->template);
     $text='*** '.$title." ***".PHP_EOL.$greet.PHP_EOL.$message.PHP_EOL.$button['title'].' ('.$button['text'].'): '.$button['url'].PHP_EOL;
     // Create a message
     $email=(new Swift_Message($title))
@@ -63,12 +88,11 @@ class Mailer {
       ->addPart($text,'text/plain');
     if (isset($from)) $email->setReplyTo([$from['email']=>$from['name']]);
     // Send the message
-    if (strncmp($message,'_test',5)==0 || strncmp($message,"'_test",6)==0) {
-      $test=strpos($message,' ')>0?substr($message,0,strpos($message,' ')):$message;
-      file_put_contents("../storage/emails/{$test}",json_encode(['to'=>$to,'from'=>isset($from)?$from:null,'token'=>$token,'greet'=>$greet,'title'=>$title,'button'=>$button,'message'=>$message]));
-    }
-    else if (strncmp($to['email'],'epdarnell+',strlen('epdarnell+'))==0){
+    if (strncmp($to['email'],'epdarnell+',strlen('epdarnell+'))==0) {
       file_put_contents("../storage/emails/{$type}_{$to['email']}",json_encode(['to'=>$to,'from'=>isset($from)?$from:null,'token'=>$token,'greet'=>$greet,'title'=>$title,'button'=>$button,'message'=>$message]));
+    }
+    else if (strncmp($from['email'],'epdarnell+',strlen('epdarnell+'))==0) {
+      file_put_contents("../storage/emails/{$type}_{$from['email']}",json_encode(['to'=>$to,'from'=>isset($from)?$from:null,'token'=>$token,'greet'=>$greet,'title'=>$title,'button'=>$button,'message'=>$message]));
     }
     $result=$this->mailer->send($email);
   }
@@ -96,7 +120,7 @@ class Mailer {
 <table class="full" id="inner_table" width="100%" cellpadding="0" cellspacing="0">
 <tr>
 <td height="60" valign="middle" align="center" bgcolor="#ffffff" style="background-color:#ffffff;border-top:1px solid #e6dee4;border-right:1px solid #e6dee4;border-left:1px solid #e6dee4;font-size:30px;font-family:Georgia,serif;">
-<a href="" style="color:#3097D1;text-decoration:none;">FreeVote.uk</a>
+<a href="$fv" style="color:#3097D1;text-decoration:none;">FreeVote.uk</a>
 </td>
 </tr>
 <tr>
@@ -136,9 +160,9 @@ $button.title</a></td>
 <tr>
 <td height="60" valign="middle" align="center" bgcolor="#ffffff" style="background-color:#ffffff;border-left:1px solid #e6dee4;border-right:1px solid #e6dee4;border-bottom:1px solid #e6dee4;padding:5px 0;">
 <div style="font-size:14px;color:#999;line-height:20px;font-family:Arial,sans-serif;">
-Copyright &copy; 2019 FreeVote.uk All rights reserved.
+Copyright &copy; 2019 <a href="$fv">FreeVote.uk</a> All rights reserved.
 </div>
-<div style="font-size:14px;"><a href="us">unsubscribe</a></div>
+<div style="font-size:14px;">$footer</div>
 </td>
 </tr>
 </table>

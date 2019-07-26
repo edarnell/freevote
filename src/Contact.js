@@ -4,6 +4,14 @@ import {ajax} from './ajax'
 
 class Contact extends Component {
     state={name:'',email:'',message:'',error:{},tick:[]}
+    componentWillMount()
+    {
+      if (this.props.type==='V' || this.props.type==='M') ajax({req:'message',token:this.props.token},r=>{
+        console.log('message',r)
+        if (r.error) this.props.close({type:'danger',text:'Error: '+r.error})
+        else this.setState({message:r.message,name:r.name,email:r.email})
+      })
+    }
     tickbox=(c)=>{
       let t=this.state.tick
       t[c]=!t[c]
@@ -11,14 +19,12 @@ class Contact extends Component {
     }
     contact=(e)=>{
       e.preventDefault()
-      if (this.props.token) ajax({req:'contact',message:this.state.message,token:this.props.token},r=>{
-        console.log('contact',r)
+      if (this.props.token) ajax({req:this.props.type==='M'?'reply':'send',message:this.state.message,name:this.state.name,email:this.state.email,token:this.props.token},r=>{
         if (r.error) this.props.close({type:'danger',text:'Error: '+r.error})
         else this.props.close({type:'success',text:'Message sent. We aim to respond within 24 hours.'})
       })
-      else if (this.state.tick[1]||this.state.tick[3]||!this.state.tick[2]) this.props.close({type:'danger',text:'Not sent: anti-spam check failed'})
-      else ajax({req:'contact',message:this.state.email,message:this.state.name,message:this.state.message},r=>{
-        console.log('contact',r)
+      else if (this.state.tick[1]||this.state.tick[3]||!this.state.tick[2]) this.props.close({type:'danger',text:'Not sent: anti-spam check failed.'})
+      else ajax({req:'contact',email:this.state.email,name:this.state.name,message:this.state.message},r=>{
         if (r.error) this.props.close({type:'danger',text:'Error: '+r.error})
         else this.props.close({type:'success',text:'Please check your email to confirm sending.'})
       })
@@ -30,7 +36,7 @@ class Contact extends Component {
     }
     render() {
       return (<Modal name='contact' show={true} onHide={()=>this.props.close()}>
-        <Modal.Header closeButton><Modal.Title>Contact Us</Modal.Title></Modal.Header>
+        <Modal.Header closeButton><Modal.Title>{this.props.type==='M'?'Reply':'Contact Us'}</Modal.Title></Modal.Header>
         <Modal.Body>
         {this.state.error.error?<div className="alert alert-danger"><strong>Server Error: {this.state.error.error}</strong></div>:null}
         <Form onSubmit={this.contact}>
@@ -51,9 +57,9 @@ class Contact extends Component {
         {this.props.token?null:<div>Anti-spam please tick the middle box.</div>}
         <Form.Group as={Row}>
           <Col sm={3}>
-          {this.props.token?null:['1','2','3'].map(c=><Form.Check key={c} type='checkbox' inline onClick={()=>this.tickbox(c)}/>)}
+          {this.props.token?null:['1','2','3'].map(c=><Form.Check name={'cb'+c} key={c} type='checkbox' inline onClick={()=>this.tickbox(c)}/>)}
           </Col>
-          <Col offset={3} sm={4}><Button name="send" varient="primary" type="submit"><i className="fa fa-envelope-o"></i> Send</Button></Col>
+          <Col offset={3} sm={4}><Button name="send" variant="primary" type="submit"><i className="fa fa-envelope-o"></i> {this.props.type==='M'?'Reply':'Send'}</Button></Col>
         </Form.Group>
         </Form>
         </Modal.Body></Modal>)

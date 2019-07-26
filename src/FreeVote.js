@@ -3,6 +3,7 @@ import {Navbar,Nav,Modal} from 'react-bootstrap'
 import logo from './agilelogo3.png'
 import Register from './Register'
 import Contact from './Contact'
+import Unsubscribe from './Unsubscribe'
 import {ajax} from './ajax'
 import { set_debug } from './Utils';
 
@@ -14,19 +15,17 @@ class FreeVote extends Component {
     if (window.location.search && window.location.search.startsWith('?mail=')) {
         // R=register
       let type=window.location.search.substr(6,1)
-      let id=window.location.search.substr(7,window.location.search.indexOf('_'))
-      let token=window.location.search.substr(window.location.search.indexOf('_')+1)
-      if (type==='C') this.setState({nav:'contact',token:token})
-      else if (type==='R') ajax({req:'confirm',token:token},
-        r=>{
+      let token=window.location.search.substr(7)
+      if (type==='C' || type==='V' || type==='M') this.setState({nav:'contact',token:token,type:type})
+      else if (type==='X') this.setState({nav:'unsubscribe',token:token})
+      else if (type==='R') ajax({req:'confirm',token:token},r=>{
           if (r.error)  this.setState({message:{type:'danger',text:'Error: '+r.error}})
           else this.setState({message:{type:'success',text:'Registration confirmed.'}})
-        }
-      )
-        //else if (type==='E') this.setState({modal:'emailUpdate',token:token,uid:id})
-        //else if (type==='P') this.setState({modal:'reset',token:token,uid:id})
-        //else if (type==='R') this.setState({modal:'reset',token:token,uid:id}) // re-use reset code
-        //else if (type==='X') this.setState({modal:'contact',token:token,uid:id})
+      })
+      else if (type==='U') ajax({req:'update',token:token},r=>{
+        if (r.error)  this.setState({message:{type:'danger',text:'Error: '+r.error}})
+        else this.setState({message:{type:'success',text:'Details updated.'}})
+      })
     }
     if (window.location.search && window.location.search!=='') window.history.pushState("object or string","Title","/")
   }
@@ -42,7 +41,11 @@ class FreeVote extends Component {
     {
       case 'about':
         page=<Home nav={(n)=>this.setState({nav:n})}/>
-        modal=<About close={()=>this.setState({nav:'home'})}/>
+        modal=<About close={this.close}/>
+        break
+      case 'unsubscribe':
+        page=<Home nav={(n)=>this.setState({nav:n})}/>
+        modal=<Unsubscribe token={this.state.token} close={this.close}/>
         break
       case 'join':
         page=<Home nav={(n)=>this.setState({nav:n})}/>
@@ -50,7 +53,7 @@ class FreeVote extends Component {
         break
       case 'contact':
         page=<Home nav={(n)=>this.setState({nav:n})}/>
-        modal=<Contact close={this.close} token={this.state.token}/>
+        modal=<Contact close={this.close} token={this.state.token} type={this.state.type}/>
         break
       default:
         page=<Home nav={(n)=>this.setState({nav:n})}/>
@@ -72,7 +75,7 @@ class FreeVote extends Component {
 class Home extends Component {
   render() {
     return <div> 
-  <div><img src={logo} alt="AgileLogo"/><button onClick={(e)=>{e.preventDefault();this.props.nav('join')}} className='btn btn-primary btn-lg'>Sign Up</button></div>
+  <div><img src={logo} alt="AgileLogo"/><button name="join" onClick={(e)=>{e.preventDefault();this.props.nav('join')}} className='btn btn-primary btn-lg'>Sign Up</button></div>
   <h1>Direct Democracy</h1>
   <p><a  target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Direct_democracy">Democracy</a> has no political beliefs beyond democracy itself. The electorate not politicians form and decide on the priorities. There are no manifestos or political ideologies.  The electorate are in charge, if something is not working it can be changed. The electorate decide what, how and when.</p>
   <p>Our political systems are driving environmental destruction, inequality and extremism. We can do far better, harnessing the <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Wisdom_of_the_crowd">wisdom of the crowd</a> to deliver 21st century solutions to 21st century problems. <a target="_blank"  rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Universal_suffrage">Universal suffrage</a> was the start not the end of the fight for true <a  target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Direct_democracy">democracy</a>.
@@ -80,7 +83,7 @@ class Home extends Component {
   <p>Change is urgently needed if we are to build a fair society whilst preserving our precious world for future generations.</p>
   <ul><li>The aim is to democratically propose, validate, improve and deliver ideas.</li></ul>	
   <p>True democracy has not been technically possible until recently, but it is now. We no longer need to be ruled by political parties and powerful individuals. We can democratically agree what needs to change. We live in a <a rel="noopener noreferrer" target="_blank" href="https://en.wikipedia.org/wiki/Representative_democracy">representative democracy</a> but transitioning to <a  target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Direct_democracy">direct democracy</a> is only a matter of voting for it.</p>
-  <p>Do not expect politicians to deliver this for us.  We must do it for ourselves, democratically. If you would like to help please <a href="#join" onClick={(e)=>{e.preventDefault();this.props.nav('join')}}>sign up</a>.</p>
+  <p>Do not expect politicians to deliver this for us.  We must do it for ourselves, democratically. If you would like to help please <a name="signup" href="#join" onClick={(e)=>{e.preventDefault();this.props.nav('join')}}>sign up</a>.</p>
   <h3>Guiding principles for true democracy</h3>
   <ul>
   <li>Democracy is primarily about freedom rather than control. Invest in the good, tax, ban or ration the bad, and only set laws which are clear and necessary.</li>

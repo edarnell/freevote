@@ -8,6 +8,7 @@ class Ajax {
         $this->init(['version'=>10]); // update when updated in FM.js
         $json=json_decode(file_get_contents("php://input"),true);
         $this->debug($json,true);
+        if (isset($json['token']) && in_array('token',$this->config['debug'])) $this->debug(['token'=>json_decode($this->decrypt($json['token']),true)]);
         if ($json && isset($json['req'])) {
             if (method_exists($this,'req_'.$json['req'])) $resp=$this->{'req_'.$json['req']}($json);
             else $resp=['e'=>'404','r'=>"404 ({$json['req']} Not Found)"];
@@ -55,48 +56,117 @@ class Ajax {
             $this->mail('register',$json,$token);
             $r='confirm';
         }
-        return (count($e)>0)?['e'=>422,'r'=>$e]:['r'=>$r,'uid'=>$this->user['id']];
+        return (count($e)>0)?['e'=>422,'r'=>$e]:$r;
     }
     public function req_confirm($json)
 	{
         $e=null;
         $token=json_decode($this->decrypt($json['token']),true);
-        $u=$this->db("select name,email,id from users where id=?",['s',&$token['id']]);
+        $u=$this->db("select name,email,id from users where id=?",['i',&$token['id']]);
         if ($u && $token['ts']>time()-48*3600) {
             $this->user=$u[0];
-            $this->db("update users set confirmed='true' where id=?",['s',&$token['id']]);
-            $this->mail('confirmed',null,$json['token']);
+            $this->db("update users set confirmed=1 where id=?",['i',&$token['id']]);
+            $this->mail('confirmed');
         }
         else $e='timeout';
-        return $e?['r'=>['error'=>$e]]:['r'=>'confirmed','uid'=>$this->user['id']];
+        return $e?['error'=>$e]:'confirmed';
+    }
+    public function req_update($json)
+	{
+        $e=null;
+        $token=json_decode($this->decrypt($json['token']),true);
+        $u=$this->db("select id,name,email,postcode,confirmed from users where id=?",['i',&$token['id']]);
+        if ($u && $token['ts']>time()-48*3600) {
+            $user=$u[0];
+            foreach($token['update'] as $f=>$v) $user[$f]=$v;
+            $user['confirmed']=1;
+            $this->db("update users set name=?,postcode=?,confirmed=? where id=?",['ssii',&$user['name'],&$user['postcode'],&$user['confirmed'],&$user['id']]);
+            $this->user=$user;
+            $this->mail('updated');
+        }
+        else $e='timeout';
+        return $e?['error'=>$e]:'updated';
+    }
+    public function req_message($json) {
+        $m=null;
+        if (isset($json['token'])) {
+            if ($token=json_decode($this->decrypt($json['token']),true)) {
+                if ($m=$this->db("select message from contact where id=?",['s',&$token['mid']])) {
+                    $m=json_decode($m[0]['message'],true);
+                }
+            }
+        }
+        return $m?$m:['error'=>'message not found'];
+    }
+    public function req_reply($json) // duplicate code with send - refactor
+	{
+        $e=null;
+        if ($token=json_decode($this->decrypt($json['token']),true)) {
+            if (isset($token['id'])) {
+                $message=json_encode(['reply'=>true,'id'=>$this->user['id'],'message'=>$json['message']]);
+                if ($u=$this->db("select name,email,id,confirmed from users where id=?",['s',&$token['id']])) {
+                    $this->user=$u[0];
+                }
+                else $e='invalid user';
+            }
+            else {
+                $message=json_encode(['reply'=>true,'name'=>$json['name'],'email'=>$json['email'],'message'=>$json['message']]);
+            }
+            $mid=$this->db("insert into contact (message) values(?)",['s',&$message]);
+            if ($this->user && $this->user['id']) $token=$this->encrypt(json_encode(['id'=>$this->user['id'],'mid'=>$mid,'ts'=>time()]));
+            else $token=$this->encrypt(json_encode(['mid'=>$mid,'ts'=>time()]));
+            if (!$e) $this->mail('reply',$json,$token);
+        }
+        else $e='invalid token';
+        return $e?['error'=>$e]:'sent';
+    }
+    public function req_send($json)
+	{
+        $e=null;
+        if ($token=json_decode($this->decrypt($json['token']),true)) {
+            if (isset($token['id'])) {
+                $message=json_encode(['id'=>$this->user['id'],'message'=>$json['message']]);
+                if ($u=$this->db("select name,email,id,confirmed from users where id=?",['s',&$token['id']])) {
+                    $this->user=$u[0];
+                }
+                else $e='invalid user';
+            }
+            else {
+                if ($json['email']=='' && isset($token['mid'])) {
+                    $m=$this->db("select message from contact where id=?",['s',&$token['mid']]);
+                    $m=json_decode($m[0]['message'],true);
+                    $this->user=['name'=>$m['name'],'email'=>$m['email'],'id'=>0];
+                    $message=$message=json_encode(['name'=>$this->user['name'],'email'=>$this->user['email'],'message'=>$json['message']]);
+                }
+                else $message=json_encode(['name'=>$json['name'],'email'=>$json['email'],'message'=>$json['message']]);
+            }
+            $mid=$this->db("insert into contact (message) values(?)",['s',&$message]);
+            if ($this->user && $this->user['id']) $token=$this->encrypt(json_encode(['id'=>$this->user['id'],'mid'=>$mid,'ts'=>time()]));
+            else $token=$this->encrypt(json_encode(['mid'=>$mid,'ts'=>time()]));
+            if (!$e) $this->mail('contact',$json,$token);
+        }
+        else $e='invalid token';
+        return $e?['error'=>$e]:'sent';
     }
     public function req_contact($json)
 	{
-        $e=null;
-        if (isset($json['token'])) {
-            $token=json_decode($this->decrypt($json['token']),true);
-            $u=$this->db("select name,email,id,confirmed from users where id=?",['s',&$token['id']]);
-            if ($u) {
-                $this->user=$u[0];
-                $this->mail('contact',$json,$json['token']);
-            }
-            $e='unknown user'
-        }
-        else $e='notoken';
-        return $e?['r'=>['error'=>$e]]:['r'=>'sent','uid'=>$this->user['id']];
+            $message=json_encode(['name'=>$json['name'],'email'=>$json['email'],'message'=>$json['message']]);
+            $mid=$this->db("insert into contact (message) values(?)",['s',&$message]);
+            $token=$this->encrypt(json_encode(['mid'=>$mid,'ts'=>time()]));
+            $this->mail('send',$json,$token);
+            return 'sent';
     }
     public function req_unsubscribe($json)
 	{
-        $user=$this->user();
-        if (password_verify($json['password'],$user['password'])) {
-            $this->db("update users set name=?,email=?,token='' where id=?",['ssi',&$user['id'],&$user['id'],&$user['id']]);
-            $this->db("delete from tutors where user_id=? or email=?",['is',&$user['id'],&$user['email']]);
-            $token=$this->encrypt(json_encode(['user'=>$user]));
-            $this->mail('unsubscribe',$json,$token);
-            $ret=['unsubscribe'=>'account deteted','uid'=>$user['id']];
+        if ($token=json_decode($this->decrypt($json['token']),true)) {
+            if ($u=$this->db("select name,email,id,confirmed from users where id=?",['s',&$token['id']])){
+                $this->user=$u[0];
+                $this->db("delete from users where id=?",['s',&$token['id']]);
+                $this->user['id']=0;
+                $this->mail('unsubscribe',$json,'');
+            }
         }
-        else $ret=['e'=>401,'r'=>['password'=>'incorrect']];
-        return $ret;
+        return 'unsubscribed';
     }
     private function db_in_values(&$list,$key=null,$type) {
         if (!count($list)) $ret='';
@@ -161,11 +231,13 @@ class Ajax {
     }
     private function mail($type,$json=null,$token=null)
     {
+        if (in_array('mail',$this->config['debug'])) $this->debug(['mail'=>$type,'json'=>$json,'token'=>$token]);
         if (!$this->mailer) {
             require_once 'mailer.php';
             $this->mailer=new Mailer();
         }
         $user=$this->user?$this->user:['id'=>0,'name'=>$json['name'],'email'=>$json['email']];
+        if (!$token && $user['id']) $token=$this->encrypt(json_encode(['id'=>$user['id'],'ts'=>time()]));
         $this->mailer->send($type,$json,$token,$user);
     }
     private function db($query,$vals=[],$close=false) {

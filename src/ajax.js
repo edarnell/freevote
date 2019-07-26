@@ -9,18 +9,18 @@ function ajax(req,done) // token used when state not yet set
   .then(res=>{
     if (!res.ok) {
       if (debug('ajax')) console.error(req,res.statusText)
-      error=res.statusText
+      return {error:res.statusText}
     }
-    return res.json()
+    else return res.json()
   })
   .then(json=>{
     //error?console.log(url,error,json):console.log(url,json)
-    if (debug('ajax')) console.debug('ajax',json,error)
-    if (done) done({error:error,data:json})
+    if (debug('ajax')) console.debug('ajax',json)
+    if (done) done(json)
   })
   .catch(e=>{
     if (debug('ajax')) console.error(req,error)
-    if (done) done({error:e,data:{error:error?error:e.message}})
+    if (done) done({error:e.message})
   })
 }
 
