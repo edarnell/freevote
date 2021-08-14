@@ -1,43 +1,63 @@
-import {debug,copy} from './Utils'
+import { debug } from './debug'
 import 'whatwg-fetch'
 
-function ajax(req,done) // token used when state not yet set
+function ajax(req) // token used when state not yet set
 {
-  if (debug('ajax')) console.log('ajax',copy(req))
-  let error=false
-  fetch('/ajax',params(req))
-  .then(res=>{
-    if (!res.ok) {
-      if (debug('ajax')) console.error(req,res.statusText)
-      return {error:res.statusText}
-    }
-    else return res.json()
-  })
-  .then(json=>{
-    //error?console.log(url,error,json):console.log(url,json)
-    if (debug('ajax')) console.debug('ajax',json)
-    if (done) done(json)
-  })
-  .catch(e=>{
-    if (debug('ajax')) console.error(req,error)
-    if (done) done({error:e.message})
+  debug('ajax')({ req })
+  return new Promise((resolve, reject) => {
+    let ok = true
+    fetch('/ajax', params(req))
+      .then(res => {
+        ok = res.ok
+        debug('ajax')({ req, res })
+        return req.gz ? res.text() : res.json()
+      })
+      .then(json => {
+        debug('ajax')({ req_req: req.req, json })
+        if (!ok) {
+          console.error('ajax', json)
+          reject(json)
+        }
+        else resolve(json)
+      })
+      .catch(e => {
+        console.error('ajax', req, e)
+        reject({ error: e.message })
+      })
   })
 }
 
-function params(req)
-{
-  let ret = {
+function params(data) {
+  let ret
+  if (!data) ret = {
+    headers: {
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    method: 'get',
+    cache: 'no-cache'
+  }
+  //cache: 'default'
+  //'FM-Token': fm.user ? fm.user.token : null,
+  //'FM-Origin': fm.origin
+  else {
+    ret = {
       headers: {
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
         'Content-Type': 'application/json',
-        'FV-Origin':window.location.origin?window.location.origin:null,
+        'FV-Origin': window.location.origin
       },
       method: 'post',
       cache: 'no-cache',
-      body: JSON.stringify(req)
+      body: JSON.stringify(data)
+    }
+    //'FM-Token': fm.user ? fm.user.token : null,
+    //  'FM-Last': JSON.stringify(fm.last()),
+    //    'FM-Origin': fm.origin,
   }
-  if (debug('params')) console.log('params',req,ret.body)
+  //console.log('params',data,ret.body)
   return ret
 }
-export {ajax}
+
+export { ajax }

@@ -1,141 +1,99 @@
 <?php
 require_once '../vendor/autoload.php';
-class Mailer {
-  function send($type,$json,$token,$user) {
-    $fv=$url=(isset($_SERVER['HTTP_FV_ORIGIN'])?$_SERVER['HTTP_FV_ORIGIN']:'https://freevote.uk');
-    $footer='<a href="'."{$url}?mail=C{$token}".'">contact us</a>'.($user['id']?'&nbsp;&nbsp;&nbsp;<a href="'."{$url}?mail=X{$token}".'">unsubscribe</a>':'');
-    switch ($type) {
+class Mailer
+{
+  function send($m)
+  {
+    //$type,$json,$token,$user
+    $url = (isset($_SERVER['HTTP_FV_ORIGIN']) ? $_SERVER['HTTP_FV_ORIGIN'] : 'https://freevote.uk');
+    $user = $m['user'];
+    $token = $m['token'];
+    switch ($m['type']) {
       case 'send':
-      $to=$user;
-      $message="Thank you for your message. Please use the send button below to confirm sending.";
-      $title="Confirm Send";
-      $url.="?mail=V{$token}";
-      $button=['title'=>'Send', 'url'=>$url, 'text'=>"to send your message"];
-      break;
+        $to = $m['from'];
+        $message = "Thank you for your message. Please confirm you sent this message and that it is not spam by using the send button below.";
+        $title = "Confirm Send";
+        $button = ['title' => 'Send', 'url' => $url . "?mail=V{$token}", 'text' => "to send your message"];
+        break;
       case 'contact':
-      $to=null;
-      $from=$user;
-      $message=$json['message'];
-      $title="Message from ".$from['name'];
-      $url.="?mail=M{$token}";
-      $footer='';
-      $button=['title'=>'Reply', 'url'=>$url, 'text'=>"to view online and reply"];
-      break;
+        $to = null;
+        $from = $user;
+        $message = $m['message'];
+        $title = "Message from " . $from['name'];
+        $button = ['title' => 'Reply', 'url' => $url . "?mail=M{$token}", 'text' => "to view online and reply"];
+        break;
       case 'reply':
-      $to=$user;
-      $message=$json['message'];
-      $title="Reply from Ed Darnell";
-      $url.="?mail=V{$token}";
-      $button=['title'=>'Reply', 'url'=>$url, 'text'=>"to view online and reply"];
-      break;
+        $to = $user;
+        $message = $m['message'];
+        $title = "Reply from Ed Darnell";
+        $button = ['title' => 'Reply', 'url' => $url . "?mail=V{$token}", 'text' => "to view online and reply"];
+        break;
       case 'register':
-      $to=$user;
-      $message="Thank you for registering. Please confirm using the button below.";
-      $title="Confirm Registration";
-      $name="Dear ".$user['name'].',';
-      $url.="?mail=R{$token}";
-      $button=['title'=>$title, 'url'=>$url, 'text'=>"link will expire in 48 hours"];
-      break;
+      case 'reregister':
+        $to = $user;
+        $message = "Thank you for registering. Please confirm using the button below.";
+        $title = "Confirm Registration";
+        $button = ['title' => $title, 'url' => $url . "?mail=R{$token}", 'text' => "link will expire in 48 hours"];
+        break;
+      case 'registered':
       case 'confirmed':
-      $to=$user;
-      $message="Welcome to the start of true democracy."
-      ."\n\nWhat happens next?"
-      ."\n\nPlease let others know who may be interested. An initial target is 1 million registrations."
-      ." Freevote.uk will not stand for election until there is a clear demand for true democracy. We will keep you informed on progress.";
-      $title="Welcome";
-      $name="Dear ".$user['name'].',';
-      $url.="?mail=C{$token}";
-      $button=['title'=>'Contact Us', 'url'=>$url, 'text'=>""];
-      break;
+        $to = $user;
+        $message = ($m['type'] === 'registered' ?
+          "Thank you for registering. You have registered in the past so there is no need to re-register."
+          : "Welcome to the start of a sustainable future.")
+          . "\n\nWe will keep you informed on progress. Greed is not an easy problem to fix, every vote is however a step in the right direction."
+          . "\n\nPlease let others know who may be interested.";
+        $title = "Welcome";
+        break;
       case 'update':
-      $to=$user;
-      $message="Please confirm your updated details.\n";
-      if ($user['name']!=$json['name']) $message.="\nName: {$json['name']}";
-      if ($user['postcode']!=$json['postcode']) $message.="\nPost Code: {$json['postcode']}";
-      $title="Confirm Changes";
-      $name="Dear ".$user['name'].',';
-      $url.="?mail=U{$token}";
-      $button=['title'=>$title, 'url'=>$url, 'text'=>"link will expire in 48 hours"];
-      break;
+        $to = $user;
+        $u = $m['update'];
+        $message = "Please confirm your updated details.\n";
+        if (isset($u['name'])) $message .= "\nName: {$u['name']}";
+        if (isset($u['email'])) $message .= "\nEmail: {$u['email']}";
+        $title = "Confirm Changes";
+        $button = ['title' => $title, 'url' => $url . "?mail=U{$token}", 'text' => "link will expire in 48 hours"];
+        break;
       case 'updated':
-      $to=$user;
-      $message="Name: {$user['name']}";
-      $message.="\nEmail: {$user['email']}";
-      $message.="\nPost Code: {$user['postcode']}";
-      $title="Details Updated";
-      $name="Dear ".$user['name'].',';
-      $url.="?mail=C{$token}";
-      $button=['title'=>'Contact Us', 'url'=>$url, 'text'=>""];
-      break;
+        $to = $user;
+        $message = "Name: {$user['name']}";
+        $message .= "\nEmail: {$user['email']}";
+        $title = "Details Updated";
+        $button = ['title' => 'Contact Us', 'url' => $url . "?mail=C{$token}", 'text' => ""];
+        break;
       case 'unsubscribe':
-      $to=$user;
-      $message="Your account has now been unsubscribed and your details removed from our database."
-      .PHP_EOL."If you made the request in error or change your mind please re-register.";
-      $title="Account Deleted";
-      $name="Dear ".$user['name'].',';
-      $url.="?mail=C";
-      $button=['title'=>"Contact Us", 'url'=>$url, 'text'=>"contact FreeVote.uk"];
-      break;
+        $to = $user;
+        $user = null;
+        $message = "Your account has now been unsubscribed and your details removed from our database."
+          . PHP_EOL . "If you made the request in error or change your mind please re-register.";
+        $title = "Account Deleted";
+        break;
     }
-    $greet=$to?"Dear {$to['name']},":'';
-    $html=str_replace(['$fv','$greet','$title','$message','$button.title','$button.url','$button.text','$footer'],[$fv,$greet,$title,nl2br(htmlentities($message)),$button['title'],$button['url'],$button['text'],$footer],$this->template);
-    $text='*** '.$title." ***".PHP_EOL.$greet.PHP_EOL.$message.PHP_EOL.$button['title'].' ('.$button['text'].'): '.$button['url'].PHP_EOL;
+    $greet = $to ? "Dear {$to['name']}," : '';
+    $but = isset($button) ? $html = str_replace(['$button.title', '$button.url', '$button.text'], [$button['title'], $button['url'], $button['text']], $this->button) : '<table width="100%"></table>';
+    $unsub = $user ? str_replace(['$url', '$token'], [$url, $token], $this->unsub) : '';
+    $html = str_replace(['$url', '$token', '$greet', '$title', '$message', '$button', '$unsub'], [$url, $token, $greet, $title, nl2br(htmlentities($message)), $but, $unsub], $this->template);
+    $text = '*** ' . $title . " ***" . PHP_EOL . $greet . PHP_EOL . $message . PHP_EOL
+      . (isset($button) ? $button['title'] . ' (' . $button['text'] . '): ' . $button['url'] . PHP_EOL : '');
     // Create a message
-    $email=(new Swift_Message($title))
-      ->setFrom(['ed.darnell@freevote.uk'=>'FreeVote.uk'])
-      ->setTo($to?[$to['email']=>$to['name']]:['ed.darnell@freevote.uk'=>'FreeVote.uk'])
-      ->setBody($html,'text/html')
-      ->addPart($text,'text/plain');
-    if (isset($from)) $email->setReplyTo([$from['email']=>$from['name']]);
-    // Send the message
-    if (strncmp($to['email'],'epdarnell+',strlen('epdarnell+'))==0) {
-      file_put_contents("../storage/emails/{$type}_{$to['email']}",json_encode(['to'=>$to,'from'=>isset($from)?$from:null,'token'=>$token,'greet'=>$greet,'title'=>$title,'button'=>$button,'message'=>$message]));
-    }
-    else if (strncmp($from['email'],'epdarnell+',strlen('epdarnell+'))==0) {
-      file_put_contents("../storage/emails/{$type}_{$from['email']}",json_encode(['to'=>$to,'from'=>isset($from)?$from:null,'token'=>$token,'greet'=>$greet,'title'=>$title,'button'=>$button,'message'=>$message]));
-    }
-    $result=$this->mailer->send($email);
+    $email = (new Swift_Message($title))
+      ->setFrom(['ed.darnell@freevote.uk' => 'FreeVote.uk'])
+      ->setTo($to ? [$to['email'] => $to['name']] : ['ed.darnell@freevote.uk' => 'FreeVote.uk'])
+      ->setBody($html, 'text/html')
+      ->addPart($text, 'text/plain');
+    if (isset($from)) $email->setReplyTo([$from['email'] => $from['name']]);
+    $result = $this->mailer->send($email);
   }
-  function __construct() {
-      // Create the Transport
-      $this->transport=(new Swift_SmtpTransport($GLOBALS['ajax']->config['mail']['server'],$GLOBALS['ajax']->config['mail']['port'],'ssl'))
-        ->setUsername($GLOBALS['ajax']->config['mail']['user'])
-        ->setPassword($GLOBALS['ajax']->config['mail']['password']);
-      // Create the Mailer using your created Transport
-      $this->mailer=new Swift_Mailer($this->transport);
-    $this->template=
-'<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; " />
-<meta http-equiv="Content-Language" content="en-GB" />
-<meta name="language" content="en-GB" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="HandheldFriendly" content="true" />
-<title>$title</title>
-</head>
-<body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" bgcolor="#fbfbfb" id="ft_email">
-<table id="outer_tabler" width="100%" cellpadding="5" cellspacing="0" bgcolor="#fbfbfb">
-<tr>
-<td valign="top" align="center">
-<table class="full" id="inner_table" width="100%" cellpadding="0" cellspacing="0">
-<tr>
-<td height="60" valign="middle" align="center" bgcolor="#ffffff" style="background-color:#ffffff;border-top:1px solid #e6dee4;border-right:1px solid #e6dee4;border-left:1px solid #e6dee4;font-size:30px;font-family:Georgia,serif;">
-<a href="$fv" style="color:#3097D1;text-decoration:none;">FreeVote.uk</a>
-</td>
-</tr>
-<tr>
-<td valign="top" align="center" bgcolor="#ffffff" style="background-color:#ffffff;border-left:1px solid #e6dee4;border-right:1px solid #e6dee4;">
-<hr style="height:1px;margin:0 auto;background:#3097D1;padding:0;border:0;width:90%;" />
-<table class="full" id="content" width="90%" cellpadding="0" cellspacing="0" bgcolor="#ffffff">
-<tr>
-<td bgcolor="#ffffff" valign="top" width="100%" style="font-size:16px;color:#000000;line-height:150%;font-family:Arial,sans-serif;text-align:justify;">
-<h3 name="greet">$greet</h3>
-<center><h3 name="title">$title</h3>
-<div style="background:#f5f8fa;padding-top:10px; padding-right: 15px; padding-bottom:10px; padding-left: 15px; margin-bottom: 15px;">
-<div name="message" style="margin:0; padding:0; text-align:left;">
-$message
-</div></div>
-<table width="100%" cellpadding="0" cellspacing="0" class="button-wrapper large method-padding-border">
+  function __construct()
+  {
+    // Create the Transport
+    $this->transport = (new Swift_SmtpTransport($GLOBALS['ajax']->config['mail']['server'], $GLOBALS['ajax']->config['mail']['port'], 'ssl'))
+      ->setUsername($GLOBALS['ajax']->config['mail']['user'])
+      ->setPassword($GLOBALS['ajax']->config['mail']['password']);
+    // Create the Mailer using your created Transport
+    $this->mailer = new Swift_Mailer($this->transport);
+    $this->unsub = '<div style="font-size:14px;">You may <a href="$url?mail=C$token">contact</a> us or <a href="$url?mail=X$token">unsubscribe</a> at any time.</div>';
+    $this->button = '<table width="100%" cellpadding="0" cellspacing="0" class="button-wrapper large method-padding-border">
 <tr>
 <td align="center" width="100%">
 <table width="auto" cellpadding="0" cellspacing="0">
@@ -149,7 +107,40 @@ $button.title</a></td>
 </table>
 <div class="padded">
 <p style="margin: 0; padding: 0; line-height:1.6em; color:#999;"><small><em name="button_text">$button.text</em></small></p><br />
-</div>
+</div>';
+    $this->template =
+      '<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; " />
+<meta http-equiv="Content-Language" content="en-GB" />
+<meta name="language" content="en-GB" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="HandheldFriendly" content="true" />
+<title>$title</title>
+</head>
+<body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" bgcolor="#fbfbfb" id="ft_email">
+<table id="outer_tabler" width="100%" cellpadding="5" cellspacing="0" bgcolor="#fbfbfb">
+<tr>
+<td valign="top" align="center">
+<table class="full" id="inner_table" width="100%" cellpadding="0" cellspacing="0" >
+<tr>
+<td height="60" valign="middle" align="center" bgcolor="#ffffff" style="background-color:#ffffff;font-size:30px;font-family:Georgia,serif; border-top:1px solid #e6dee4; border-right:1px solid #e6dee4; border-left:1px solid #e6dee4;">
+<a href="$url" style="color:#3097D1;text-decoration:none;">FreeVote.uk</a>
+</td>
+</tr>
+<tr>
+<td valign="top" align="center" bgcolor="#ffffff" style="background-color:#ffffff; border-right:1px solid #e6dee4; border-left:1px solid #e6dee4;">
+<hr style="height:1px;margin:0 auto;background:#3097D1;padding:0;border:0;width:90%;" />
+<table class="full" id="content" width="90%" cellpadding="0" cellspacing="0" bgcolor="#ffffff">
+<tr>
+<td bgcolor="#ffffff" valign="top" width="100%" style="font-size:16px;color:#000000;line-height:150%;font-family:Arial,sans-serif;text-align:justify;">
+<h3 name="greet">$greet</h3>
+<center><h3 name="title">$title</h3>
+<div style="background:#f5f8fa;padding-top:10px; padding-right: 15px; padding-bottom:10px; padding-left: 15px; margin-bottom: 15px;">
+<div name="message" style="margin:0; padding:0; text-align:left;">
+$message
+</div></div>
+$button
 </center>
 </td>
 </tr>
@@ -158,11 +149,14 @@ $button.title</a></td>
 </td>
 </tr>
 <tr>
-<td height="60" valign="middle" align="center" bgcolor="#ffffff" style="background-color:#ffffff;border-left:1px solid #e6dee4;border-right:1px solid #e6dee4;border-bottom:1px solid #e6dee4;padding:5px 0;">
+<td valign="top" align="center" bgcolor="#ffffff" style="background-color:#ffffff; border-right:1px solid #e6dee4; border-left:1px solid #e6dee4; border-bottom:1px solid #e6dee4;">
+<br/>
 <div style="font-size:14px;color:#999;line-height:20px;font-family:Arial,sans-serif;">
-Copyright &copy; 2019 <a href="$fv">FreeVote.uk</a> All rights reserved.
+<a href="$url">FreeVote.uk</a> does not use cookies or track users.
+<div style="font-size:14px;">Beware of scams, all links should start with https://freevote.uk/</div>
+$unsub
 </div>
-<div style="font-size:14px;">$footer</div>
+<br/>
 </td>
 </tr>
 </table>
@@ -173,4 +167,3 @@ Copyright &copy; 2019 <a href="$fv">FreeVote.uk</a> All rights reserved.
 </html>';
   }
 }
-?>
