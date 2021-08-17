@@ -1,9 +1,29 @@
-import { setup, read_email } from './setup'
+import { setup } from './setup'
 // add tests for adding deleting etc
 // add tests for clicking on log
 describe('Contact', function () {
-    let tester = { name: 'test register', email: 'epdarnell+freevote@gmail.com', postcode: 'HA1 1XR' }
-    it.only("Contact Us", function () {
+    let tester = { name: 'test contact', email: 'epdarnell+contact@gmail.com' }, token
+    it("Setup", function () {
+        console.log('Setup')
+        setup(cy)
+        cy.get('#join').click()
+        cy.get('div[name=register]').within(() => {
+            cy.get('input[name=name]').type(tester.name)
+            cy.get('input[name=email]').type(tester.email)
+            cy.get('button[name=register]').click()
+        })
+        cy.get('div[name=alert]', { timeout: 5000 }).should('contain', 'Please check your email to confirm')
+        cy.get('#token').invoke('text').then(l => {
+            token = l
+            cy.visit('/?mail=X' + token, { onBeforeLoad: (win) => { win.fetch = null } })
+            cy.get('div[name=unsubscribe]').within(() => {
+                cy.contains('Delete Account')
+                cy.get('button[name=unsubscribe]').click()
+            })
+            cy.get('div[name=alert]', { timeout: 5000 }).should('contain', 'You have been unsubscribed.')
+        })
+    })
+    it("Contact Us", function () {
         setup(cy)
         cy.get('#contact').click()
         cy.get('div[name=contact]').within(() => {
@@ -41,92 +61,121 @@ describe('Contact', function () {
             cy.get('button[name=send]').click()
         })
         cy.get('div[name=alert]', { timeout: 5000 }).should('contain', 'Please check your email to confirm sending')
+        cy.get('#token').invoke('text').then(l => token = l)
     })
     it("Confirm Send", function () {
-        read_email('send_' + tester.email, r => {
-            expect(r.greet).to.equal('Dear ' + tester.name + ',')
-            expect(r.to.name).to.equal(tester.name)
-            expect(r.to.email).to.equal(tester.email)
-            expect(r.from).to.be.null
-            expect(r.title).to.equal('Confirm Send')
-            expect(r.message).to.have.string('Thank you for your message. Please use the send button below to confirm sending.')
-            expect(r.button.title).to.equal('Send')
-            expect(r.button.text).to.equal('to send your message')
-            let link = r.button.url.match(/http:\/\/.*\?mail=(.*)/)
-            cy.visit('/?mail=' + link[1], { onBeforeLoad: (win) => { win.fetch = null } })
-            cy.wait(1000)
-            cy.get('div[name=contact]').within(() => {
-                cy.contains('Contact Us')
-                cy.get('button[name=send]').click()
-            })
-            //cy.wait(2000)
-            cy.get('div[name=alert]').should('contain', 'Message sent. We aim to respond within 24 hours.')
+        cy.visit('/?mail=V' + token, { onBeforeLoad: (win) => { win.fetch = null } })
+        cy.get('div[name=contact]').within(() => {
+            cy.contains('Contact FreeVote.uk')
+            cy.get('textarea[id=formMessage]').contains("A test message")
+            cy.get('button[name=send]').click()
         })
-    })
-    it("Contact2", function () {
-        read_email('contact_' + tester.email, r => {
-            expect(r.greet).to.equal('')
-            expect(r.to).to.be.null
-            expect(r.from.name).to.equal(tester.name)
-            expect(r.from.email).to.equal(tester.email)
-            expect(r.title).to.equal('Message from ' + tester.name)
-            expect(r.message).to.have.string('A test message')
-            expect(r.button.title).to.equal("Reply")
-            let link = r.button.url.match(/http:\/\/.*\?mail=(.*)/)
-            cy.visit('/?mail=' + link[1], { onBeforeLoad: (win) => { win.fetch = null } })
-            cy.wait(1000)
-            cy.get('div[name=contact]').within(() => {
-                cy.contains('Reply')
-                cy.get('textarea[id=formMessage]').type(" - reply")
-                cy.get('button[name=send]').click()
-            })
-            cy.wait(2000)
-            cy.get('div[name=alert]').should('contain', 'Message sent. We aim to respond within 24 hours.')
-        })
-    })
-    it("Reply2", function () {
-        read_email('reply_' + tester.email, r => {
-            expect(r.greet).to.equal('Dear ' + tester.name + ',')
-            expect(r.to.name).to.equal(tester.name)
-            expect(r.to.email).to.equal(tester.email)
-            expect(r.from).to.be.null
-            expect(r.title).to.equal('Reply from Ed Darnell')
-            expect(r.message).to.have.string('A test message - reply')
-            expect(r.button.title).to.equal('Reply')
-            expect(r.button.text).to.equal('to view online and reply')
-        })
-    })
-    it("Contact", function () {
-        read_email('contact_' + tester.email, r => {
-            expect(r.greet).to.equal('')
-            expect(r.to).to.be.null
-            expect(r.from.name).to.equal(tester.name)
-            expect(r.from.email).to.equal(tester.email)
-            expect(r.title).to.equal('Message from ' + tester.name)
-            expect(r.message).to.have.string('A test message')
-            expect(r.button.title).to.equal("Reply")
-            let link = r.button.url.match(/http:\/\/.*\?mail=(.*)/)
-            cy.visit('/?mail=' + link[1], { onBeforeLoad: (win) => { win.fetch = null } })
-            cy.wait(1000)
-            cy.get('div[name=contact]').within(() => {
-                cy.contains('Reply')
-                cy.get('textarea[id=formMessage]').type(" - reply")
-                cy.get('button[name=send]').click()
-            })
-            //cy.wait(2000)
-            cy.get('div[name=alert]').should('contain', 'Message sent. We aim to respond within 24 hours.')
-        })
+        cy.get('div[name=alert]', { timeout: 5000 }).should('contain', 'Message sent. We aim to respond within 24 hours.')
+        cy.get('#token').invoke('text').then(l => token = l)
     })
     it("Reply", function () {
-        read_email('reply_' + tester.email, r => {
-            expect(r.greet).to.equal('Dear ' + tester.name + ',')
-            expect(r.to.name).to.equal(tester.name)
-            expect(r.to.email).to.equal(tester.email)
-            expect(r.from).to.be.null
-            expect(r.title).to.equal('Reply from Ed Darnell')
-            expect(r.message).to.have.string('A test message - reply')
-            expect(r.button.title).to.equal('Reply')
-            expect(r.button.text).to.equal('to view online and reply')
+        cy.visit('/?mail=M' + token, { onBeforeLoad: (win) => { win.fetch = null } })
+        cy.get('div[name=contact]').within(() => {
+            cy.contains('Reply')
+            cy.get('textarea[id=formMessage]').contains("A test message")
+            cy.get('textarea[id=formMessage]').type(" - reply")
+            cy.get('button[name=send]').click()
         })
+        cy.get('div[name=alert]').should('contain', 'Reply sent.')
+    })
+    it("Setup 2", function () {
+        console.log('Setup')
+        setup(cy)
+        cy.get('#join').click()
+        cy.get('div[name=register]').within(() => {
+            cy.get('input[name=name]').type(tester.name)
+            cy.get('input[name=email]').type(tester.email)
+            cy.get('button[name=register]').click()
+        })
+        cy.get('div[name=alert]', { timeout: 5000 }).should('contain', 'Please check your email to confirm')
+    })
+    it("Contact Us 2", function () {
+        setup(cy)
+        cy.get('#contact').click()
+        cy.get('div[name=contact]').within(() => {
+            cy.contains('Contact FreeVote.uk')
+            cy.get('input[name=name]').type(tester.name)
+            cy.get('input[name=email]').type(tester.email)
+            cy.get('textarea[id=formMessage]').type("A 2nd test message")
+            cy.get('input[name=cb2]').click()
+            cy.get('button[name=send]').click()
+        })
+        cy.get('div[name=alert]', { timeout: 5000 }).should('contain', 'Please check your email to confirm sending')
+        cy.get('#token').invoke('text').then(l => token = l)
+    })
+    it("Confirm Send 2", function () {
+        cy.visit('/?mail=V' + token, { onBeforeLoad: (win) => { win.fetch = null } })
+        cy.get('div[name=contact]').within(() => {
+            cy.contains('Contact FreeVote.uk')
+            cy.get('textarea[id=formMessage]').contains("A 2nd test message")
+            cy.get('button[name=send]').click()
+        })
+        cy.get('div[name=alert]', { timeout: 5000 }).should('contain', 'Message sent. We aim to respond within 24 hours.')
+        cy.get('#token').invoke('text').then(l => token = l)
+    })
+    it("Reply 2", function () {
+        cy.visit('/?mail=M' + token, { onBeforeLoad: (win) => { win.fetch = null } })
+        cy.get('div[name=contact]').within(() => {
+            cy.contains('Reply')
+            cy.get('textarea[id=formMessage]').contains("A 2nd test message")
+            cy.get('textarea[id=formMessage]').type(" - reply")
+            cy.get('button[name=send]').click()
+        })
+        cy.get('div[name=alert]').should('contain', 'Reply sent.')
+    })
+    it("Setup 3", function () {
+        console.log('Setup')
+        setup(cy)
+        cy.get('#join').click()
+        cy.get('div[name=register]').within(() => {
+            cy.get('input[name=name]').type(tester.name)
+            cy.get('input[name=email]').type(tester.email)
+            cy.get('button[name=register]').click()
+        })
+        cy.get('div[name=alert]', { timeout: 5000 }).should('contain', 'Please check your email to confirm')
+        cy.get('#token').invoke('text').then(l => {
+            token = l
+            cy.visit('/?mail=R' + token, { onBeforeLoad: (win) => { win.fetch = null } })
+            cy.get('div[name=alert]', { timeout: 5000 }).should('contain', 'Registration confirmed')
+        })
+    })
+    it("Contact Us 3", function () {
+        setup(cy)
+        cy.get('#contact').click()
+        cy.get('div[name=contact]').within(() => {
+            cy.contains('Contact FreeVote.uk')
+            cy.get('input[name=name]').type(tester.name)
+            cy.get('input[name=email]').type(tester.email)
+            cy.get('textarea[id=formMessage]').type("A 3rd test message")
+            cy.get('input[name=cb2]').click()
+            cy.get('button[name=send]').click()
+        })
+        cy.get('div[name=alert]', { timeout: 5000 }).should('contain', 'Please check your email to confirm sending')
+        cy.get('#token').invoke('text').then(l => token = l)
+    })
+    it("Confirm Send 3", function () {
+        cy.visit('/?mail=V' + token, { onBeforeLoad: (win) => { win.fetch = null } })
+        cy.get('div[name=contact]').within(() => {
+            cy.contains('Contact FreeVote.uk')
+            cy.get('textarea[id=formMessage]').contains("A 3rd test message")
+            cy.get('button[name=send]').click()
+        })
+        cy.get('div[name=alert]', { timeout: 5000 }).should('contain', 'Message sent. We aim to respond within 24 hours.')
+        cy.get('#token').invoke('text').then(l => token = l)
+    })
+    it("Reply 3", function () {
+        cy.visit('/?mail=M' + token, { onBeforeLoad: (win) => { win.fetch = null } })
+        cy.get('div[name=contact]').within(() => {
+            cy.contains('Reply')
+            cy.get('textarea[id=formMessage]').contains("A 3rd test message")
+            cy.get('textarea[id=formMessage]').type(" - reply")
+            cy.get('button[name=send]').click()
+        })
+        cy.get('div[name=alert]').should('contain', 'Reply sent.')
     })
 })

@@ -11,38 +11,36 @@ class Mailer
     switch ($m['type']) {
       case 'send':
         $to = $m['from'];
-        $message = "Thank you for your message. Please confirm you sent this message and that it is not spam by using the send button below.";
+        $message = "Thank you for your message. Please confirm that you sent this message and that it is not spam by using the send button below.";
         $title = "Confirm Send";
         $button = ['title' => 'Send', 'url' => $url . "?mail=V{$token}", 'text' => "to send your message"];
         break;
       case 'contact':
         $to = null;
-        $from = $user;
+        $from = $m['from'];
         $message = $m['message'];
         $title = "Message from " . $from['name'];
         $button = ['title' => 'Reply', 'url' => $url . "?mail=M{$token}", 'text' => "to view online and reply"];
         break;
       case 'reply':
-        $to = $user;
+        $to = $m['from'];
         $message = $m['message'];
         $title = "Reply from Ed Darnell";
-        $button = ['title' => 'Reply', 'url' => $url . "?mail=V{$token}", 'text' => "to view online and reply"];
         break;
       case 'register':
       case 'reregister':
         $to = $user;
-        $message = "Thank you for registering. Please confirm using the button below.";
+        $message = "Please confirm that this registration request came from you using the button below.";
         $title = "Confirm Registration";
         $button = ['title' => $title, 'url' => $url . "?mail=R{$token}", 'text' => "link will expire in 48 hours"];
         break;
       case 'registered':
       case 'confirmed':
         $to = $user;
-        $message = ($m['type'] === 'registered' ?
-          "Thank you for registering. You have registered in the past so there is no need to re-register."
-          : "Welcome to the start of a sustainable future.")
-          . "\n\nWe will keep you informed on progress. Greed is not an easy problem to fix, every vote is however a step in the right direction."
+        $message = ($user['confirmed'] ? "You have registered in the past so there is no need to re-register. " : "Thank you for registering. ")
+          . "\n\nWe will keep you informed on progress. Every vote is one step closer to a fair and sustainable future."
           . "\n\nPlease let others know who may be interested.";
+        $user['confirmed'] = true;
         $title = "Welcome";
         break;
       case 'update':
@@ -72,7 +70,8 @@ class Mailer
     $greet = $to ? "Dear {$to['name']}," : '';
     $but = isset($button) ? $html = str_replace(['$button.title', '$button.url', '$button.text'], [$button['title'], $button['url'], $button['text']], $this->button) : '<table width="100%"></table>';
     $unsub = $user ? str_replace(['$url', '$token'], [$url, $token], $this->unsub) : '';
-    $html = str_replace(['$url', '$token', '$greet', '$title', '$message', '$button', '$unsub'], [$url, $token, $greet, $title, nl2br(htmlentities($message)), $but, $unsub], $this->template);
+    $confirm = $user && !$user['confirmed'] ? str_replace(['$url', '$token'], [$url, $token], $this->confirm) : '';
+    $html = str_replace(['$url', '$token', '$greet', '$title', '$message', '$button', '$confirm', '$unsub'], [$url, $token, $greet, $title, nl2br(htmlentities($message)), $but, $confirm, $unsub], $this->template);
     $text = '*** ' . $title . " ***" . PHP_EOL . $greet . PHP_EOL . $message . PHP_EOL
       . (isset($button) ? $button['title'] . ' (' . $button['text'] . '): ' . $button['url'] . PHP_EOL : '');
     // Create a message
@@ -87,12 +86,16 @@ class Mailer
   function __construct()
   {
     // Create the Transport
-    $this->transport = (new Swift_SmtpTransport($GLOBALS['ajax']->config['mail']['server'], $GLOBALS['ajax']->config['mail']['port'], 'ssl'))
-      ->setUsername($GLOBALS['ajax']->config['mail']['user'])
-      ->setPassword($GLOBALS['ajax']->config['mail']['password']);
+    if ($GLOBALS['ajax']->config['mail']['server'] == 'localhost') $this->transport = new Swift_SendmailTransport('/usr/sbin/sendmail -bs');
+    else {
+      $this->transport = (new Swift_SmtpTransport($GLOBALS['ajax']->config['mail']['server'], $GLOBALS['ajax']->config['mail']['port'], 'ssl'))
+        ->setUsername($GLOBALS['ajax']->config['mail']['user'])
+        ->setPassword($GLOBALS['ajax']->config['mail']['password']);
+    }
     // Create the Mailer using your created Transport
     $this->mailer = new Swift_Mailer($this->transport);
     $this->unsub = '<div style="font-size:14px;">You may <a href="$url?mail=C$token">contact</a> us or <a href="$url?mail=X$token">unsubscribe</a> at any time.</div>';
+    $this->confirm = '<div style="font-size:14px;">Note: you are part registered, please <a href="$url?mail=R$token">confirm</a> or <a href="$url?mail=X$token">unsubscribe</a></div>';
     $this->button = '<table width="100%" cellpadding="0" cellspacing="0" class="button-wrapper large method-padding-border">
 <tr>
 <td align="center" width="100%">
@@ -141,6 +144,7 @@ $button.title</a></td>
 $message
 </div></div>
 $button
+$confirm
 </center>
 </td>
 </tr>

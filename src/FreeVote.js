@@ -7,12 +7,13 @@ import { ajax } from './ajax'
 import { debug } from './debug'
 //import logo from './tick.svg'
 class FreeVote extends Component {
-  state = { nav: 'home', message: null }
+  state = { nav: 'home', message: null, version: 1 }
   componentDidMount() {
-    if (window.location.search && window.location.search.startsWith('?mail=')) {
+    const url = window.location.search
+    debug('FreeVote', true)({ state: this.state, url })
+    if (url && url.startsWith('?mail=')) {
       // R=register
-      let type = window.location.search.substr(6, 1)
-      let token = window.location.search.substr(7)
+      const type = url.substr(6, 1), token = url.substr(7)
       if (type === 'C' || type === 'V' || type === 'M') this.setState({ modal: 'contact', token: token, type: type })
       else if (type === 'X') this.setState({ modal: 'unsubscribe', token: token })
       else if (type === 'R') ajax({ req: 'confirm', token: token }).then(r => {
@@ -24,7 +25,7 @@ class FreeVote extends Component {
         else this.setState({ message: { type: 'success', text: 'Details updated.' } })
       })
     }
-    if (window.location.search && window.location.search !== '') window.history.pushState("object or string", "Title", "/")
+    if (url) window.history.pushState("object or string", "Title", "/")
     this.n()
   }
   componentDidUpdate() {
@@ -47,7 +48,6 @@ class FreeVote extends Component {
     this.scrolled = false // for message
   }
   render() {
-    debug('render')({ state: this.state })
     const m = this.state.modal,
       modal = {
         about: <About close={this.close} />,
@@ -88,8 +88,8 @@ class Home extends Component {
         We are directly causing the mass extinction of much of the variety of life which makes Earth the wonderful place it is.
         The cause of this is quite simple; it is greed. Most of us suffer from greed.
         Greed is an evolutionary trait which has an important role in less developed species.
-        Our commercial and political leaders are all too willing to exploit our greed to feed their own greed.
-        Our economic systems, especially, but not limited to capitalism, are designed to drive and exploit greed.
+        Our commercial and political leaders are all too willing to exploit greed.
+        Our economic systems, especially, but not limited to capitalism, are designed to drive greed.
         In an era where consumption and population have grown out of control greed is the very last thing we should be driving.
         These systems are quite simply insane.
       </p>
@@ -119,7 +119,9 @@ class Home extends Component {
         Do we really need to celebrate success with greed, feeling our lives are deficient unless we have more than others?
       </p>
       <h5>So how do we change?</h5>
-      <p>We must vote for change. We must replace the current greed-driven system with a fair, sustainable, ration-based system. The current system only continues because we repeatedly vote for it. The system will only change when we vote to change it.
+      <p>We must vote for change. We must replace the current greed-driven system with a fair, sustainable, ration-based system.
+        Covid has shown how quickly we can act when we need to.
+        The current system only continues because we repeatedly vote for it. The system will only change when we vote to change it.
       </p>
       <h5>Are we ready?</h5>
       <p>Probably not. Most people recognise the urgent need, but are unlikely to vote for change. If you would like to see this change then simply <span className='btn-link' onClick={() => this.props.nav('join')}>add</span> yourself to the email list.

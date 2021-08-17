@@ -17,13 +17,20 @@ class Contact extends Component {
   contact = (e) => {
     e.preventDefault()
     if (this.props.token) {
-      ajax({ req: this.props.type === 'M' ? 'reply' : 'send', message: this.state.message, name: this.state.name, email: this.state.email, token: this.props.token })
-        .then(r => this.props.close({ type: 'success', text: 'Message sent. We aim to respond within 24 hours.' }))
+      const reply = this.props.type === 'M'
+      ajax({ req: reply ? 'reply' : 'send', message: this.state.message, name: this.state.name, email: this.state.email, token: this.props.token })
+        .then(r => {
+          const token = r.send && r.send.token
+          this.props.close({ type: 'success', text: reply ? 'Reply sent.' : 'Message sent. We aim to respond within 24 hours.' }, token)
+        })
         .catch(r => this.props.close({ type: 'danger', text: 'Error: ' + r.error }))
     }
     else if (this.state.tick[1] || this.state.tick[3] || !this.state.tick[2]) this.setState({ spam: true })
     else ajax({ req: 'contact', email: this.state.email, name: this.state.name, message: this.state.message })
-      .then(r => this.props.close({ type: 'success', text: 'Please check your email to confirm sending (check spam and mark as not spam if misdirected).' }))
+      .then(r => {
+        const token = r.send && r.send.token
+        this.props.close({ type: 'success', text: 'Please check your email to confirm sending (check spam and mark as not spam if misdirected).' }, token)
+      })
       .catch(r => this.props.close({ type: 'danger', text: 'Error: ' + r.error }))
   }
   update = (field, value) => {
