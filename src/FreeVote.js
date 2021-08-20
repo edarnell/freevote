@@ -83,48 +83,46 @@ class Home extends Component {
   state = { v: 2 }
   render() {
     return <div>
-      <h5>Greed is destroying life on Earth</h5>
+      <h5>Economics must change</h5>
       <p>It is quite obvious to most people that we are making a mess of the planet.
-        We are directly causing the mass extinction of much of the variety of life which makes Earth the wonderful place it is.
-        The cause of this is quite simple; it is greed. Most of us suffer from greed.
-        Greed is an evolutionary trait which has an important role in less developed species.
-        Our commercial and political leaders are all too willing to exploit greed.
-        Our economic systems, especially, but not limited to capitalism, are designed to drive greed.
-        In an era where consumption and population have grown out of control greed is the very last thing we should be driving.
-        These systems are quite simply insane.
+      We are directly causing the mass extinction of much of the variety of life which makes Earth the wonderful place it is.
+      The cause of this is quite simple; it is greed. Greed is an evolutionary trait which has an important role in less developed species.
+      Our economic systems, especially, but not limited to capitalism, are designed to exploit greed.
+      In an era where consumption and population have grown out of control greed is the very last thing we should be driving.
+      These systems must change.
       </p>
       <h5>So what is the alternative?</h5>
       <p>The alternative is rationing. As a species we already consume at least double what the Earth can afford.
-        The problem is a dual one of consumption and population.
-        We must reduce our environmental impact, while we get our population back under control.
-        We must learn to have smaller families and each consume far less until we reach a sustainable level.
-        Our current population means every action must be multiplied by 7.8 billion to understand the potential impact.
+      The problem is a dual one of consumption and population.
+      We must reduce our environmental impact, while we get our population back under control.
+      We must learn to have smaller families and each consume far less until we reach a sustainable level.
+      Our current population means every action must be multiplied by 7.8 billion to understand the potential impact.
       </p>
       <h5>Why rationing?</h5>
-      <p>Nothing else works. Our greed instinct is too deeply embedded.
-        Most of us know we are making a mess of the planet but we are not willing to ration our lives while we see others taking more.
-        It cannot be one rule for some and a different rule for everyone else.
-        We should be free to use our ration as we prefer, but we must all be rationed.
-        Environmental scientists can advise on the limits and priorities.
-        We must then democratically agree, monitor and refine rations which apply to everyone.
+      <p>Nothing else works. Most of us are not willing to ration our lives while we see others taking far more.
+      It cannot be one rule for some and a different rule for everyone else.
+      We should be free to use our ration as we prefer, but rationing must be fair.
+      Environmental scientists can advise on the limits and priorities.
+      We must then democratically agree, monitor and refine rations which apply to everyone.
       </p>
       <h5>Will rationing be bad?</h5>
       <p>Not necessarily.
-        We enjoy hoarding and consuming ever more stuff.
-        We enjoy our daily polluting rituals and our highly destructive foreign holidays.
-        We are however trapped in wage slavery. Our greed-based economics is highly destructive, unequal and inefficient.
-        Removing greed from our lives will change them, but it will not necessarily make them worse.
-        Freeing ourselves will potentially enable us to focus on things of real value (family, friends, health, sport, education, science and the arts) and deliver far more time to enjoy life’s simple pleasures.
-        The UK was at its healthiest during war-time rationing, an era which also saw the establishment of universal education, welfare and healthcare.
-        Do we really need to celebrate success with greed, feeling our lives are deficient unless we have more than others?
+      We enjoy hoarding and consuming ever more stuff.
+      We enjoy our foreign holidays and polluting rituals.
+      We are however trapped in wage slavery. Our growth-based economics is highly destructive, unequal and inefficient.
+      Removing greed from our lives will change them, but it will not necessarily make them worse.
+      Freeing ourselves will potentially enable us to focus on things of real value (family, friends, health, sport, education, science and the arts) and deliver far more time to enjoy life’s simple pleasures.
+      The UK was at its healthiest during war-time rationing, an era which also saw the establishment of universal education, welfare and healthcare.
+      Do we really need to celebrate success with greed, feeling our lives are deficient unless we have more than others?
       </p>
       <h5>So how do we change?</h5>
-      <p>We must vote for change. We must replace the current greed-driven system with a fair, sustainable, ration-based system.
-        Covid has shown how quickly we can act when we need to.
-        The current system only continues because we repeatedly vote for it. The system will only change when we vote to change it.
+      <p>We must vote for change. We must replace the current growth-based system with a fair, sustainable, ration-based system.
+      We must focus our effort on efficiency and sustainability, not on growth and greed.
+      Covid has shown how quickly we can act when we need to.
+      The current system only continues because we repeatedly vote for it. The system will only change when we vote to change it.
       </p>
       <h5>Are we ready?</h5>
-      <p>Probably not. Most people recognise the urgent need, but are unlikely to vote for change. If you would like to see this change then simply <span className='btn-link' onClick={() => this.props.nav('join')}>add</span> yourself to the email list.
+      <p>Time will tell. If you would like to see this change then simply <span className='btn-link' onClick={() => this.props.nav('join')}>add</span> yourself to the email list.
         The list currently has <b>{this.props.n || 0}</b> people on it. A long way to go before this is a democratic majority. Every vote is however one step closer to a fair and sustainable future.
       </p>
     </div>
