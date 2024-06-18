@@ -1,13 +1,7 @@
 {
   "short_name": "FreeVote.uk",
   "name": "FreeVote.uk",
-  "icons": [
-    {
-      "src": "favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
-    }
-  ],
+  "version": "2024.06.17",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
