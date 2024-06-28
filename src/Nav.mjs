@@ -10,10 +10,8 @@ class Nav extends Html {
     constructor() {
         super()
         this.pages = {
-            about: { nav: 'About', href: 'about', tip: 'about' },
-            why: { nav: 'Why', href: 'why', tip: 'why' },
-            how: { nav: 'About', href: 'about', tip: 'about' },
-            vote: { nav: 'Vote', href: 'vote', tip: 'vote' },
+            home: { nav: 'Home', href: 'home', tip: 'home page' },
+            about: { popup: 'About', href: 'about', tip: 'about' }
         }
         this.id = 'nav'
         this.init(css, favicon)
@@ -28,7 +26,7 @@ class Nav extends Html {
         return html
     }
     rendered = () => {
-        this.path = 'about'
+        this.path = 'home'
         const p = this.pages[this.path]
         debug({ p })
         this.page = p.page ? p.page() : this.O(p.nav)

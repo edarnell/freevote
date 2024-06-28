@@ -1,13 +1,13 @@
-import html from './html/About.html'
+import html from './html/Home.html'
 import Html, { debug } from './Html.mjs'
 
-class About extends Html {
+class Home extends Html {
     constructor() {
         super()
-        this.id = 'about'
+        this.id = 'home'
     }
     html = (name, param) => {
         return html
     }
 }
-export default About
+export default Home

@@ -1,8 +1,10 @@
 const debug = console.log.bind(console)
 const error = console.error.bind(console)
 import About from './About.mjs'
+import Home from './Home.mjs'
 
 const cs = {
+    Home,
     About
 }
 class H {
