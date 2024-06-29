@@ -1,74 +1,78 @@
-<svg width="800" height="1000" xmlns="http://www.w3.org/2000/svg">
-  <!-- Header Box -->
-  <rect x="50" y="20" width="700" height="60" fill="none" stroke="black" stroke-width="2"/>
-  <text x="60" y="50" font-family="sans-serif" font-weight="bold" font-size="20">Election of the Member of Parliament for Your constituency</text>
+<svg width="500" height="380" xmlns="http://www.w3.org/2000/svg">
+  <!-- Group for entire form -->
+  <g id="form-group" transform="scale(0.7) rotate(90,300,300) translate(0,-110)">
+    <!-- Header Box -->
+    <rect x="50" y="20" width="450" height="60" fill="none" stroke="black" stroke-width="2"/>
+    <text x="60" y="50" font-family="sans-serif" font-weight="bold" font-size="20">Election of Logic for Your constituency</text>
 
-  <!-- Inner Instruction Box -->
-  <rect x="50" y="80" width="700" height="40" fill="none" stroke="black" stroke-width="2"/>
-  <text x="60" y="105" font-family="sans-serif" font-size="18">
-    Vote for <tspan font-weight="bold">only one candidate</tspan> by putting a cross
-    <tspan x="480" y="105">in the box next to your choice</tspan>
-  </text>
+    <!-- Inner Instruction Box -->
+    <rect x="50" y="80" width="450" height="40" fill="none" stroke="black" stroke-width="2"/>
+    <text x="60" y="105" font-family="sans-serif" font-size="18">
+      Vote for <tspan font-weight="bold">logic</tspan> by putting
+      <tspan x="316" y="105">next to your choice</tspan>
+    </text>
 
-  <!-- X Mark Box -->
-  <rect x="442" y="85" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
-  <text x="447" y="108" font-family="sans-serif" font-size="24" font-weight="bold">✗</text>
+    <!-- X Mark Box -->
+    <rect x="272" y="85" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+    <text x="280" y="108" font-family="sans-serif" font-size="24" font-weight="bold">✗</text>
 
-  
-  <!-- Candidate Entries -->
-  <g font-family="sans-serif">
-    <!-- Candidate 1 -->
-    <text x="70" y="150" font-weight="bold" font-size="16">POLITICIAN, Percy</text>
-    <text x="70" y="170" font-size="14">(address in Random Constituency)</text>
-    <text x="70" y="190" font-weight="bold" font-size="16">Reform UK</text>
-    <rect x="720" y="140" width="30" height="30" fill="none" stroke="black"/>
-    <line x1="50" y1="200" x2="750" y2="200" stroke="black" stroke-width="2"/>
+    <!-- Candidate Entries -->
+    <g font-family="sans-serif">
+      <!-- Candidate 1 -->
+      <text x="70" y="150" font-weight="bold" font-size="16">POLITICIAN, Percy</text>
+      <text x="70" y="170" font-size="14">(address in Random Constituency)</text>
+      <text x="70" y="190" font-weight="bold" font-size="16">Reform UK</text>
+      <rect x="450" y="140" width="40" height="40" fill="none" stroke="black"/>
+      <line x1="50" y1="200" x2="500" y2="200" stroke="black" stroke-width="2"/>
 
-    <!-- Candidate 2 -->
-    <text x="70" y="230" font-weight="bold" font-size="16">POLITICIAN, Penelope</text>
-    <text x="70" y="250" font-size="14">(address in Another Constituency)</text>
-    <text x="70" y="270" font-weight="bold" font-size="16">Independent</text>
-    <rect x="720" y="220" width="30" height="30" fill="none" stroke="black"/>
-    <line x1="50" y1="280" x2="750" y2="280" stroke="black" stroke-width="2"/>
+      <!-- Candidate 2 -->
+      <text x="70" y="230" font-weight="bold" font-size="16">POLITICIAN, Penelope</text>
+      <text x="70" y="250" font-size="14">(address in Another Constituency)</text>
+      <text x="70" y="270" font-weight="bold" font-size="16">Independent</text>
+      <rect x="450" y="220" width="40" height="40" fill="none" stroke="black"/>
+      <line x1="50" y1="280" x2="500" y2="280" stroke="black" stroke-width="2"/>
 
-    <!-- Candidate 3 -->
-    <text x="70" y="310" font-weight="bold" font-size="16">POLITICIAN, Peter</text>
-    <text x="70" y="330" font-size="14">(address in Example Constituency)</text>
-    <text x="70" y="350" font-weight="bold" font-size="16">Green Party</text>
-    <rect x="720" y="300" width="30" height="30" fill="none" stroke="black"/>
-    <line x1="50" y1="360" x2="750" y2="360" stroke="black" stroke-width="2"/>
+      <!-- Candidate 3 -->
+      <text x="70" y="310" font-weight="bold" font-size="16">POLITICIAN, Peter</text>
+      <text x="70" y="330" font-size="14">(address in Example Constituency)</text>
+      <text x="70" y="350" font-weight="bold" font-size="16">Green Party</text>
+      <rect x="450" y="300" width="40" height="40" fill="none" stroke="black"/>
+      <line x1="50" y1="360" x2="500" y2="360" stroke="black" stroke-width="2"/>
 
-    <!-- Candidate 4 -->
-    <text x="70" y="390" font-weight="bold" font-size="16">POLITICIAN, Patricia</text>
-    <text x="70" y="410" font-size="14">(address in Different Constituency)</text>
-    <text x="70" y="430" font-weight="bold" font-size="16">Conservative</text>
-    <rect x="720" y="380" width="30" height="30" fill="none" stroke="black"/>
-    <line x1="50" y1="440" x2="750" y2="440" stroke="black" stroke-width="2"/>
+      <!-- Candidate 4 -->
+      <text x="70" y="390" font-weight="bold" font-size="16">POLITICIAN, Patricia</text>
+      <text x="70" y="410" font-size="14">(address in Different Constituency)</text>
+      <text x="70" y="430" font-weight="bold" font-size="16">Conservative</text>
+      <rect x="450" y="380" width="40" height="40" fill="none" stroke="black"/>
+      <line x1="50" y1="440" x2="500" y2="440" stroke="black" stroke-width="2"/>
 
-    <!-- Candidate 5 -->
-    <text x="70" y="470" font-weight="bold" font-size="16">POLITICIAN, Pippa</text>
-    <text x="70" y="490" font-size="14">(address in Some Constituency)</text>
-    <text x="70" y="510" font-weight="bold" font-size="16">Liberal Democrats</text>
-    <rect x="720" y="460" width="30" height="30" fill="none" stroke="black"/>
-    <line x1="50" y1="520" x2="750" y2="520" stroke="black" stroke-width="2"/>
+      <!-- Candidate 5 -->
+      <text x="70" y="470" font-weight="bold" font-size="16">POLITICIAN, Pippa</text>
+      <text x="70" y="490" font-size="14">(address in Some Constituency)</text>
+      <text x="70" y="510" font-weight="bold" font-size="16">Liberal Democrats</text>
+      <rect x="450" y="460" width="40" height="40" fill="none" stroke="black"/>
+      <line x1="50" y1="520" x2="500" y2="520" stroke="black" stroke-width="2"/>
 
-    <!-- Candidate 6 -->
-    <text x="70" y="550" font-weight="bold" font-size="16">POLITICIAN, Patrick</text>
-    <text x="70" y="570" font-size="14">(address in Another Constituency)</text>
-    <text x="70" y="590" font-weight="bold" font-size="16">Independent</text>
-    <rect x="720" y="540" width="30" height="30" fill="none" stroke="black"/>
-    <line x1="50" y1="600" x2="750" y2="600" stroke="black" stroke-width="2"/>
+      <!-- Candidate 6 -->
+      <text x="70" y="550" font-weight="bold" font-size="16">POLITICIAN, Patrick</text>
+      <text x="70" y="570" font-size="14">(address in Another Constituency)</text>
+      <text x="70" y="590" font-weight="bold" font-size="16">Independent</text>
+      <rect x="450" y="540" width="40" height="40" fill="none" stroke="black"/>
+      <line x1="50" y1="600" x2="500" y2="600" stroke="black" stroke-width="2"/>
 
-    <!-- Candidate 7 -->
-    <text x="70" y="630" font-weight="bold" font-size="16">POLITICIAN, Polly</text>
-    <text x="70" y="650" font-size="14">(address in Other Constituency)</text>
-    <text x="70" y="670" font-weight="bold" font-size="16">Labour</text>
-    <rect x="720" y="620" width="30" height="30" fill="none" stroke="black"/>
-    <line x1="50" y1="680" x2="750" y2="680" stroke="black" stroke-width="2"/>
+      <!-- Candidate 7 -->
+      <text x="70" y="630" font-weight="bold" font-size="16">POLITICIAN, Polly</text>
+      <text x="70" y="650" font-size="14">(address in Other Constituency)</text>
+      <text x="70" y="670" font-weight="bold" font-size="16">Labour</text>
+      <rect x="450" y="620" width="40" height="40" fill="none" stroke="black"/>
+      <line x1="50" y1="680" x2="500" y2="680" stroke="black" stroke-width="2"/>
+    </g>
   </g>
 
   <!-- FreeVote Box and Mark -->
-  <rect x="462" y="300" width="30" height="30" fill="none" stroke="blue" stroke-width="2"/>
-  <text x="469" y="305" font-family="sans-serif" font-size="24" fill="blue" font-weight="bold" transform="rotate(90,469,305)">✗</text>
-  <text x="467" y="340" font-family="cursive"  fill="blue" font-size="30" font-weight="bold" transform="rotate(90,467,340)">FreeVote.uk</text>
+  <rect x="98" y="230" width="30" height="30" fill="none" stroke="blue" stroke-width="2"/>
+  <text x="106" y="253" font-family="sans-serif" font-size="24" fill="blue" font-weight="bold">✗</text>
+  <text x="138" y="255" font-family="cursive" fill="blue" font-size="30" font-weight="bold">Logic not Politics</text>
 </svg>
+
+
